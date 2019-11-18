@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>新增奖品</title>
+    <script src="js/flexible_css.debug.js"></script>
+    <script src="js/flexible.debug.js"></script>
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/prizeCommon.css">
+</head>
+<body>
+<div class="content">
+    <div class="nv lineBottom">
+        <span class="back" ><img src="imgs/back.png" style="width: 0.4rem">返回</span>
+    </div>
+    <div class="title1 lineBottom">
+        <span>新增奖品</span>
+    </div>
+
+    <div class="addSetting">
+        <div class="addSet">
+            <div class="addSetL">奖品名称</div>
+            <div class="addSetR">
+                <input type="text" id="prizeName" name="name" class="setCommon" maxlength="10" placeholder="请输入奖品名称" value=""/>
+            </div>
+        </div>
+        <div class="addSet">
+            <div class="addSetL">中奖概率</div>
+            <div class="addSetR">
+                <input type="number" id="probability" name="probability" class="setCommon" value="0" onblur="checkNumb(1,'probability');"
+                       onkeyup="if(this.value.length==1){this.value=this.value.replace(/[^0-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}"
+                       onafterpaste="if(this.value.length==1){this.value=this.value.replace(/[^0-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}">%
+            </div>
+        </div>
+        <div class="addSet">
+            <div class="addSetL">奖品价值</div>
+            <div class="addSetR">
+                <input type="number" id="price" name="price" class="setCommon" value="0" onblur="checkNumb(2,'price')"
+                       onkeyup="this.value= this.value.match(/\d+(\.\d{0,2})?/) ? this.value.match(/\d+(\.\d{0,2})?/)[0] : ''"
+                       onafterpaste="this.value= this.value.match(/\d+(\.\d{0,2})?/) ? this.value.match(/\d+(\.\d{0,2})?/)[0] : ''">元
+            </div>
+        </div>
+        <!--<div class="addSet">-->
+        <!--<div class="addSetL">返奖比例</div>-->
+        <!--<div class="addSetR">-->
+        <!--&lt;!&ndash;<span type="number" id="returnRate" name="returnRate" class="setCommon">0%</span>&ndash;&gt;-->
+        <!--<input type="number" id="returnRate" name="returnRate" class="setCommon" value="" disabled>%-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--隐藏是否上架这里不能修改-->
+        <!--<div class="addSet">-->
+        <!--<div class="addSetL">是否上架</div>-->
+        <!--<div class="addSetR">-->
+        <!--&lt;!&ndash;<span id="grounding" name="grounding" class="setCommon">否</span>&ndash;&gt;-->
+        <!--<select id="grounding" name="grounding" class="setCommon" disabled>-->
+        <!--<option value="0" selected>否</option>-->
+        <!--<option value="1">是</option>-->
+        <!--</select>-->
+        <!--</div>-->
+        <!--</div>-->
+        <div class="addSet">
+            <div class="addSetL">是否促销模式</div>
+            <div class="addSetR">
+                <select id="promote" name="promote" class="setCommon">
+                    <option value="0" selected>否</option>
+                    <option value="1">是</option>
+                </select>
+            </div>
+        </div>
+        <div class="addSet description">
+            <div class="addSetL">奖品说明</div>
+            <div class="addSetR">
+                <textarea id="description" name="description" placeholder="用于中奖后的描述" rows="5" cols="20" maxlength="100"></textarea>
+            </div>
+        </div>
+    </div>
+    <form id="prizeform" enctype="multipart/form-data">
+        <div id="imgPreview">
+            <div id="prompt3">
+            <span id="imgSpan">
+                <div class="imgDiv"><img src="imgs/upload.png" class="upImg"/></div>点击上传图片
+            </span>
+                <input type="file" id="file" class="filepath" onchange="changepic(this)" accept="image/jpg,image/jpeg,image/png,image/PNG">
+            </div>
+            <img src="" id="img3" />
+        </div>
+    </form>
+    <div class="errorTip">
+        <span id="errorTip"></span>
+    </div>
+    <input type="button" class="delBtn" onclick="delPrize()" value="删除"/>
+    <input type="button" class="save" onclick="savePrize()"value="保存"/>
+</div>
+<script src="lib/jquery-3.3.1.min.js"></script>
+<script src="lib/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="lib/jquery.date.js"></script>
+<script type="text/javascript" src="lib/jquery.cookie.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript" src="js/prizeAdd.js"></script>
+<script type="text/javascript">
+    //主要防止出现0233这种数
+    //type==1：0~100的正数、最多带两位的小数
+    //type==2：大于等于0的正整数
+    function checkNumb(type,id) {
+        let value = Number($('#'+id).val());
+        if(type == 1){
+            if(value>=0 && value<=100){
+                $('#'+id).val(value);
+            }else{
+                $('#'+id).val('0');
+            }
+        }else{
+            $('#'+id).val(value);
+        }
+    }
+</script>
+</body>
+</html>

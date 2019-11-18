@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+</head>
+<body>
+<header id="hd">
+    <div class="report"><p>今日收入</p><p id="totalIncome" style="text-align: center;">0</p></div>
+    <a href="detail.html" id="detail">订单详情</a>
+</header>
+<section class="container">
+    <div class="search">
+        <div>
+            <div style="display: flex;justify-content: space-between">
+                <div>
+                    <span style="margin-right: 5px;">选择设备ID</span>
+                    <select id="screenCodes"><option>全部</option></select>
+                </div>
+                <div class="couponD"><a href="couponDetail.html">兑券详情</a></div>
+            </div>
+            <div style="margin-top: 5px;"><span style="margin-right: 3px;">查询日期</span>
+                <div class="calBox"><input type="text" id="calendar3" data-options="{'type':'YYYY-MM-DD','beginYear':2010,'endYear':2088}" style="width:72px;height:19px;" value=""> <span class="caret" style="margin: 0"></span></div>
+                -
+                <div class="calBox"><input type="text" id="calendar4" data-options="{'type':'YYYY-MM-DD','beginYear':2010,'endYear':2088}" style="width:72px;height:19px;" value=""> <span class="caret" style="margin: 0"></span></div>
+            </div>
+        </div>
+    </div>
+    <div class="reportTx">
+        <div class="reportL">
+            <p>登录人数：<span id="loginNum">112人</span></p>
+            <p>中奖人数：<span id="winners">56人</span></p>
+            <p>发奖数量：<span id="prizeNum">60张</span></p>
+            <p>奖品核销数：<span id="prizeUsed">50张</span></p>
+            <p>支付人数：<span id="payNum">5人</span></p>
+        </div>
+        <div class="reportR">
+            <p>人均游戏时长：<span id="gameTime">321秒</span></p>
+            <p>兑奖人数：<span id="usedPrizeNum">50人</span></p>
+            <p>发奖金额：<span id="money">50元</span></p>
+            <p>核销金额：<span id="usedMoney">10元</span></p>
+            <p>营收金额：<span id="profits">100元</span></p>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="module">
+        <p class="title">发券数量</p>
+        <p class="num" id="sendStamps">0</p>
+    </div>
+    <div class="module">
+        <p class="title">兑换券数量</p>
+        <p class="num" id="exchange">0</p>
+    </div>
+</footer>
+
+
+
+<script src="lib/jquery-3.3.1.min.js"></script>
+<script src="lib/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="lib/jquery.cookie.js"></script>
+<script type="text/javascript" src="lib/jquery.date.js"></script>
+<script src="js/common.js"></script>
+<script type="text/javascript">
+    $(function(){
+        let urlParamInfo=urlParam();
+        console.log(urlParamInfo);
+        let memberId=urlParamInfo.memberId;
+        let token=urlParamInfo.token;
+        let role=urlParamInfo.role;
+        //把数据存储到cookie里面
+        $.cookie('agencyId',memberId,{
+            path:'/',
+        });
+        $.cookie('token',token);
+        $.cookie('role',role);
+        let serverIp_ = localStorage.getItem("serverIp");
+        $.ajax({
+            headers: {
+                "token": token
+            },
+            contentType: 'application/json;charset=UTF-8',
+            dataType: "json",
+            type: "get",
+            url: serverIp_+"/agency/business/get/report",
+            data:{
+                "businessId":memberId
+            },
+            success: function(data){
+                console.log(data);
+                let incomeVo=data.data.incomeVo;
+                if(incomeVo){
+                    let totalIncome=incomeVo.totalIncome/100;
+                    $("#totalIncome").text(totalIncome+"元");
+                    $("#sendStamps").text(incomeVo.sendCouponCount);
+                    $("#exchange").text(incomeVo.consumeCouponCount);
+                }else {
+                    console.log("您还没绑定商家");
+                }
+
+            },
+            error:function(err){
+                // console.log(err);
+
+            }
+        });
+        //日历
+        $.date('#calendar3');
+        $.date('#calendar4');
+        function getNow(s) {
+            return s < 10 ? '0' + s: s;
+        };
+        var myDate = new Date();
+        var year=myDate.getFullYear();
+        var month=myDate.getMonth()+1;
+        var date=myDate.getDate();
+        var now=year+'-'+getNow(month)+"-"+getNow(date);
+        //昨天
+        myDate.setTime(myDate.getTime()-24*60*60*1000);
+        var yesterday = myDate.getFullYear()+"-" + (myDate.getMonth()+1) + "-" + myDate.getDate();
+        $("#calendar4").val(now);
+        $("#calendar3").val(yesterday);
+    })
+
+</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="lib/ft_slider/css/ft-slider.css" />
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+    <style>
+        button {
+            display: inline-block;
+            padding: 6px 112px;
+            line-height: 1.4;
+            text-align: center;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            color: #fff;
+            background-color: #5bc0de;
+            border-color: #46b8da;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .ft-slider{
+            margin: 0 auto;
+        }
+
+        .containerH {
+            margin: 20px;
+            height: 140px;
+        }
+    </style>
+</head>
+<body>
+<div class="container" style="text-align: center">
+    <h3 class="instructions">您好！ 请登录</h3>
+    <div class="main">
+        <form class="" role="form">
+            <div class="input-group inp">
+                <input type="number" id="user" class="form-control" placeholder="输入手机号码" value="" oninput="if(value.length>11)value=value.slice(0,11)">
+            </div>
+            <br>
+            <div class="input-group inp">
+                <input type="password" id="pwd" class="form-control" placeholder="输入密码" value="">
+            </div>
+            <div class="litterLink inp">
+                <!--<a href="#">忘记密码</a>-->
+                <a href="register.html">新用户注册</a>
+            </div>
+        </form>
+    </div>
+    <!--滑块-->
+    <div class="containerH">
+        <div id="slider"></div>
+        <!--<div class="btn-wrap"><button id="btn1">还原</button></div>-->
+        <!--<div class="result-wrap">验证结果：<span id="result1"></span></div>-->
+    </div>
+
+    <input type="button" value="登录" id="submitBtn" style="margin-top: 20px">
+</div>
+
+<script src="lib/jquery-3.3.1.min.js"></script>
+<script src="lib/bootstrap/bootstrap.min.js"></script>
+<script src="lib/ft_slider/js/ft-slider.min.js"></script>
+<script>
+    var btn1 = document.getElementById("btn1");
+    localStorage.setItem('serverIp',"https://h5.hdiandian.com");
+    let serverIp_ = localStorage.getItem("serverIp");
+    var slider = new FtSlider({
+        id: "slider",
+        callback: function(res) {
+            // result1.innerHTML = res;
+            if(res==true){
+                $("#user").blur();
+                $("#pwd").blur();
+                $("#submitBtn").css("background","#169bd5");
+                $("#submitBtn").click(function () {
+                    var userInfo=new Object();
+                    var user=$("#user").val();
+                    var pwd=$("#pwd").val();
+                    userInfo.phone=user;
+                    userInfo.password=pwd;
+                    console.log(userInfo);
+                    // 验证手机号
+                    var pattern = /^1[34578]\d{9}$/;
+                    if(user && pwd){
+                        if(pattern.test(user)){
+                            $.ajax({
+                                type: "post",
+                                url: serverIp_+"/agency/login",
+                                data: JSON.stringify(userInfo),
+                                contentType: 'application/json;charset=UTF-8',
+                                dataType: "json",
+                                success: function(data){
+                                    console.log(data);
+                                    if(data.code==0){
+                                        //分不同的权限进行登录
+                                        console.log(data);
+                                        var role=data.data.role;
+                                        var memberId=data.data.memberId;
+                                        var token=data.data.token;
+                                        window.location.href="indexAddM.html?memberId="+memberId+"&token="+token+"&role="+role;
+                                    };
+                                    if(data.code==-1){
+                                        var msg=data.message;
+                                        alert(msg);
+                                        slider.restore();
+                                    }
+
+                                }
+                            });
+                        }else {
+                            alert("请输入合法的手机号");
+                            slider.restore();
+                        };
+
+                    }else {
+                        alert("输入不能空白");
+                        slider.restore();
+                    };
+                })
+            }
+        }
+    });
+
+</script>
+</body>
+</html>

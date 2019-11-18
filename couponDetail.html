@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>兑奖详情</title>
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="lib/dropload/dropload.css">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+</head>
+<body>
+<div class="container-fluid line">
+    <div class="nv0 nv">
+        <span class="back"><img src="imgs/back.png" width="16">返回</span>
+    </div>
+</div>
+
+<section class="content" id="bContent">
+    <!--<div class="order">-->
+    <!--<div class="orderL"><img src="imgs/head.png" width="40"></div>-->
+    <!--<div class="orderM">-->
+    <!--<p>10086设备<br/>2019-3-13 16:54:43</p>-->
+    <!--</div>-->
+    <!--<div class="orderR"><span class="orderNum">+0.02</span></div>-->
+    <!--</div>-->
+
+</section>
+<div>
+    <a href="javacript:void(0);" style="width: 40px;height: 40px;border-radius: 50%;background: #cf9455;border: 1px solid #cf9455;display: block;position: fixed;
+    bottom: 62px;right: 50px;z-index: 999;color: #fff;display: none" class="set_top">
+        <span class="fa fa-chevron-up" aria-hidden="true" style="position: absolute;left: 50%; top: 46%;transform: translate(-50%,-50%);width: 30px">置顶</span>
+    </a>
+</div>
+</div>
+
+
+
+<script src="lib/jquery-3.3.1.min.js"></script>
+<script src="lib/bootstrap/bootstrap.min.js"></script>
+<script src="lib/jquery.cookie.js"></script>
+<script src="lib/dropload/dropload.min.js"></script>
+<script src="js/common.js"></script>
+<script type="text/javascript">
+    $(function() {
+        let token = $.cookie('token');
+        let agencyId = $.cookie('agencyId');//商户ID，登录的时候返回的memberId
+        let role = $.cookie('role');
+        let serverIp_ = localStorage.getItem("serverIp");
+        //分页获得订单信息
+        let page = 0;    // 每页展示5个
+        let size = 10;    // dropload调用
+
+        //上拉加载
+        $('#bContent').dropload({
+            scrollArea: window,
+            domDown: {
+                domNoData: '<p class="dropload-noData">暂无更多数据</p>'
+            },
+            loadDownFn: function (me) {
+                page++;
+                console.log(role);
+                if (role == 3) {//经销商
+                    $.ajax({
+                        headers: {
+                            "token": token
+                        },
+                        type: "get",
+                        contentType: 'application/json;charset=UTF-8',
+                        dataType: "json",
+                        url: serverIp_+"/agency/agencyManager/coupons",
+                        data: {
+                            "agencyId": agencyId,
+                            "current": page,
+                            "size": size
+                        },
+                        success: function (data) {
+                            console.log(data);
+                            let msg = data.data;
+                            if (msg) {
+                                let orders = msg.records;
+                                for (let i = 0; i < orders.length; i++) {
+                                    if(orders[i].used==1){
+                                        $("#bContent").append(`<div class="order" style="background: url('imgs/exchange.png')no-repeat;background-position: top right;">
+                                    <div class="orderL"><img src="imgs/head.png" width="40"></div>
+                                    <div class="orderM">
+                                        <p>${orders[i].memberName}<span style="padding-left: 15px">${orders[i].couponName}</span><br/>${orders[i].time}</p>
+                                    </div>
+                                    <div class="orderR"><span class="orderNum">￥${orders[i].worth / 100}</span></div>
+
+                                </div>`);
+                                    };
+                                    if(orders[i].used==0){
+                                        $("#bContent").append(`<div class="order">
+                                    <div class="orderL"><img src="imgs/head.png" width="40"></div>
+                                    <div class="orderM">
+                                        <p>${orders[i].memberName}<span style="padding-left: 15px">${orders[i].couponName}</span><br/>${orders[i].time}</p>
+                                    </div>
+                                    <div class="orderR"><span class="orderNum">￥${orders[i].worth / 100}</span></div>
+                                </div>`);
+                                    };
+
+                                };
+                                if (orders.length == 0) {
+                                    me.lock();
+                                    me.noData();
+                                }
+                            }else{
+                                me.lock();  // 锁定
+                                me.noData(); // 无数据
+                            };
+                            me.resetload();
+
+                        },
+                        error: function (xhr, type) {
+                            // alert('Ajax error!');
+                            // 即使加载出错，也得重置
+                            console.log(xhr)
+                            me.lock();  // 锁定
+                            me.noData(); // 无数据
+                            me.resetload();
+                        }
+                    });
+
+                };
+                if (role == 2) {//商家
+                    $.ajax({
+                        headers: {
+                            "token": token
+                        },
+                        type: "get",
+                        url: serverIp_+"/agency/business/coupons",
+                        data: {
+                            "businessId": agencyId,
+                            "current": page,
+                            "limit": size
+                        },
+                        contentType: 'application/json;charset=UTF-8',
+                        dataType: "json",
+                        success: function (data) {
+                            console.log(data);
+                            console.log("商家");
+                            let msg = data.data;
+                            if (msg) {
+                                let orders = msg.records;
+                                for (let i = 0; i < orders.length; i++) {
+                                    if(orders[i].used==1){
+                                        $("#bContent").append(`<div class="order" style="background: url('imgs/exchange.png')no-repeat;background-position: top right;">
+                                    <div class="orderL"><img src="imgs/head.png" width="40"></div>
+                                    <div class="orderM">
+                                        <p>${orders[i].memberName}<span style="padding-left: 15px">${orders[i].couponName}</span><br/>${orders[i].time}</p>
+                                    </div>
+                                    <div class="orderR"><span class="orderNum">￥${orders[i].worth / 100}</span></div>
+
+                                </div>`);
+                                    };
+                                    if(orders[i].used==0){
+                                        $("#bContent").append(`<div class="order">
+                                    <div class="orderL"><img src="imgs/head.png" width="40"></div>
+                                    <div class="orderM">
+                                        <p>${orders[i].memberName}<span style="padding-left: 15px">${orders[i].couponName}</span><br/>${orders[i].time}</p>
+                                    </div>
+                                    <div class="orderR"><span class="orderNum">￥${orders[i].worth / 100}</span></div>
+                                </div>`);
+                                    };
+
+                                };
+                                if (orders.length == 0) {
+                                    me.lock();
+                                    me.noData();
+                                }
+                            }else{
+                                me.lock();  // 锁定
+                                me.noData(); // 无数据
+                            };
+                            me.resetload();
+                        },
+                        error: function (xhr, type) {
+                            // alert('Ajax error!');
+                            // 即使加载出错，也得重置
+                            console.log(xhr)
+                            me.lock();  // 锁定
+                            me.noData(); // 无数据
+                            me.resetload();
+                        }
+                    })
+                }
+            }
+        })
+
+        //返回首页
+        $(".back").click(function () {
+            window.location.href="marketing.html";
+        })
+
+    });
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>奖品配置</title>
+    <!--<script src="http://g.tbcdn.cn/mtb/lib-flexible/0.3.4/??flexible_css.js,flexible.js"></script>-->
+    <script src="js/flexible_css.debug.js"></script>
+    <script src="js/flexible.debug.js"></script>
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/prizeCommon.css">
+</head>
+<body>
+<div class="content">
+    <div class="nv lineBottom">
+        <span class="back" ><img src="imgs/back.png" style="width: 0.4rem">返回</span>
+    </div>
+    <div class="title1 lineBottom">
+        <span>奖品配置</span>
+    </div>
+    <div class="title2 lineBottom">
+        <div class="titleL"><span class="number">序号</span></div>
+        <div class="titleM"><span class="EventName">抽奖活动名称</span></div>
+        <div class="titleR"><span>编辑</span></div>
+    </div>
+    <div style="height: 11.0rem; overflow: hidden;">
+        <section id="aContent" style="height: 11.0rem;overflow-y: auto;">
+            <!--<div class="record lineBottom">-->
+                <!--<div class="recordL"><span id="number">01</span></div>-->
+                <!--<div class="recordM"><span id="name">海底捞抽奖活动</span></div>-->
+                <!--<div class="recordR">-->
+                    <!--<div class="edit">-->
+                        <!--<button id="Configuration"><a href="detailConfig.html?from=configuration">配置</a></button>-->
+                        <!--<button id="delete">删除</button>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        </section>
+    </div>
+
+    <a href="detailConfig.html?from=0"><div class="addActive">新增抽奖活动</div></a>
+</div>
+
+
+
+<script src="lib/jquery-3.3.1.min.js"></script>
+<script src="lib/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="lib/jquery.date.js"></script>
+<script type="text/javascript" src="lib/jquery.cookie.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
+    let token= $.cookie('token');
+    let agencyId= $.cookie('agencyId');//商户ID，登录的时候返回的memberId
+    let role= $.cookie('role');
+    let serverIp_ = localStorage.getItem("serverIp");
+    //返回
+    $(".back").click(function () {
+        window.location.href="indexAddM.html?memberId="+agencyId+"&token="+token+"&role="+role;
+    });
+    //1、获取商家下的活动配置列表（商家可以添加多个奖品活动）
+    function getConfigurationList(){
+        $.ajax({
+            headers: {
+                "token": token
+            },
+            type: "get",
+            url: serverIp_+"/agency/good/configuration/get/"+agencyId,
+            data: '',
+            contentType: 'application/json;charset=UTF-8',
+            dataType: "json",
+            success: function(data){
+                console.log("活动配置列表：")
+                console.log(data);
+                let orders=data.data;
+                console.log(orders);
+                if(orders && orders != undefined) {
+                    $("#aContent").empty();
+                    for (let i = 0; i < orders.length; i++) {
+                        $("#aContent").append(`<div class="record lineBottom">
+                        <div class="record"><span id="number">${i+1}</span></div>
+                        <div class="recordM"><span id="name">${orders[i].name}</span></div>
+                        <div class="recordR">
+                            <div class="edit">
+                                <button id="Configuration" onclick="gotoConfiguration(${orders[i].id})">配置</button>
+                                <button id="delete" onclick="delConfiguration(${orders[i].id})">删除</button>
+                            </div>
+                        </div>
+                    </div>`);
+                    }
+                }
+            }
+        });
+    };
+    getConfigurationList();
+
+    //去配置某个活动页面
+    function gotoConfiguration(configurationId) {
+        window.location.href = "detailConfig.html?from=1&configurationId="+configurationId;
+    }
+
+    //删除某个活动配置
+    function delConfiguration(configurationId) {
+        $.ajax({
+            headers: {
+                "token": token
+            },
+            type: "delete",
+            url: serverIp_+"/agency/good/configuration/delete/" + configurationId,
+            data: '',
+            contentType: 'application/json;charset=UTF-8',
+            dataType: "json",
+            success: function (data) {
+                //删除成功之后，重新查询一遍
+                getConfigurationList();
+            }
+        });
+    };
+</script>
+</body>
+</html>

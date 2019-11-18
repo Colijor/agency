@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>奖品设置</title>
+    <!--<script src="http://g.tbcdn.cn/mtb/lib-flexible/0.3.4/??flexible_css.js,flexible.js"></script>-->
+    <script src="js/flexible_css.debug.js"></script>
+    <script src="js/flexible.debug.js"></script>
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/prizeCommon.css">
+</head>
+<body>
+<div class="content">
+    <div class="nv lineBottom">
+        <span class="back" ><img src="imgs/back.png" style="width: 0.4rem">返回</span>
+    </div>
+    <div class="title1 lineBottom">
+        <span>奖品设置</span>
+    </div>
+    <div class="prizeContent lineBottom">
+        <div class="prizeContent01"><span>奖品图片</span></div>
+        <div class="prizeContent02"><span>奖品名称</span></div>
+        <!--<div><span>奖品价值</span></div>-->
+        <div class="prizeContent01"><span>中奖概率</span></div>
+        <div class="prizeContent01"><span>返奖比例</span></div>
+        <div class="prizeContent01"><span>是否上架</span></div>
+    </div>
+    <div style="height: 8.25rem; overflow: hidden;">
+        <section id="pContent" style="height: 8.25rem;overflow-y: auto;">
+            <!--<div class="prizeContent lineBottom">-->
+            <!--<div class="prizeContent01" id="prizeImg"><img src="imgs/prizeBg.png" class="prizeImg"></img></div>-->
+            <!--<div class="prizeContent01" id="money"><span>100.00</span></div>-->
+            <!--<div class="prizeContent01" id="prizeName"><span>iphone X</span></div>-->
+            <!--<div class="prizeContent01" id="zhongjianglv"><span>0</span></div>-->
+            <!--<div class="prizeContent01" id="shangjia">-->
+            <!--<select style="width: 1.0rem;height: 0.5rem;">-->
+            <!--<option>否</option>-->
+            <!--<option>是</option>-->
+            <!--</select>-->
+            <!--</div>-->
+            <!--</div>-->
+        </section>
+    </div>
+    <div class="emptyTip"></div>
+    <div class="tip">
+        <p>所有上架商品的返奖比例之和为100%</p>
+        <p>请重新设置！</p>
+    </div>
+    <div id="addPrize" class="addActive" onclick="addPrize()">新增奖品</div>
+    <input type="submit" class="save" onclick="save()" value="保存"/>
+</div>
+
+
+
+<script src="lib/jquery-3.3.1.min.js"></script>
+<script src="lib/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="lib/jquery.date.js"></script>
+<script type="text/javascript" src="lib/jquery.cookie.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
+    let token= $.cookie('token');
+    let agencyId= $.cookie('agencyId');//商户ID，登录的时候返回的memberId
+    let urlParamInfo = urlParam();
+    let configurationId = urlParamInfo.configurationId;
+    let serverIp_ = localStorage.getItem("serverIp");
+    //返回
+    $(".back").click(function () {
+        //from=1该奖品活动已存在，返回奖品配置页面
+        window.location.href="detailConfig.html?from=1&configurationId="+configurationId;
+    });
+
+    let prizeList = {};
+    //根据活动配置ID查询奖品列表
+    function findPrizeList(){
+        $.ajax({
+            headers: {
+                "token": token
+            },
+            type: "get",
+            url: serverIp_+"/agency/good/get/list/"+configurationId,
+            data: "",
+            contentType: 'application/json;charset=UTF-8',
+            dataType: "json",
+            success: function (data) {
+                console.log("奖品列表查询")
+                console.log(data)
+                let orders = data.data;
+                prizeList = orders;
+                if(orders && orders != undefined){
+                    for(let i = 0;i < orders.length;i++){
+                        if(orders[i].grounding ==0){
+                            // <div class="prizeContent01"><span id="money${orders[i].id}">${orders[i].price}</span></div>
+                            $('#pContent').append(`<div class="prizeContent lineBottom">
+                            <div class="prizeContent01"><img src="${orders[i].icon}" class="prizeImg" onclick="goConfiguration(${orders[i].id})"></div>
+                            <div class="prizeContent02"><span class="nameOver" id="prizeName${orders[i].id}">${orders[i].name}</span><br/><span>${orders[i].price}元</span></div>
+                            <div class="prizeContent01"><span id="probability${orders[i].id}">${orders[i].probability}%</span></div>
+                            <div class="prizeContent01"><input type="number" id="returnRate${orders[i].id}" value="${orders[i].returnRate}" onblur="checkNumb('returnRate${orders[i].id}')"
+                           onkeyup="if(this.value.length==1){this.value=this.value.replace(/[^0-9]/g,'')}else{this.value=this.value.replace(/\\D/g,'')}"
+                           onafterpaste="if(this.value.length==1){this.value=this.value.replace(/[^0-9]/g,'')}else{this.value=this.value.replace(/\\D/g,'')}">%</div>
+                            <div class="prizeContent01" id="grounding${orders[i].id}">
+                                <select id="groundvalue${orders[i].id}" style="width: 1.0rem;height: 0.5rem;">
+                                    <option value="0" selected>否</option>
+                                    <option value="1">是</option>
+                                </select>
+                            </div>
+                        </div>`);
+                        }else{
+                            $('#pContent').append(`<div id="prize" class="prizeContent lineBottom">
+                            <div class="prizeContent01"><img src="${orders[i].icon}" class="prizeImg" onclick="goConfiguration(${orders[i].id})"></div>
+                            <div class="prizeContent02"><span class="nameOver" id="prizeName${orders[i].id}">${orders[i].name}</span><br/><span>${orders[i].price}元</span></div>
+                            <div class="prizeContent01"><span id="probability${orders[i].id}">${orders[i].probability}%</span></div>
+                            <div class="prizeContent01"><input type="number" id="returnRate${orders[i].id}" value="${orders[i].returnRate}" onblur="checkNumb('returnRate${orders[i].id}')"
+                           onkeyup="if(this.value.length==1){this.value=this.value.replace(/[^0-9]/g,'')}else{this.value=this.value.replace(/\\D/g,'')}"
+                           onafterpaste="if(this.value.length==1){this.value=this.value.replace(/[^0-9]/g,'')}else{this.value=this.value.replace(/\\D/g,'')}">%</div>
+                            <div class="prizeContent01" id="grounding${orders[i].id}">
+                            <select id="groundvalue${orders[i].id}" style="width: 1.0rem;height: 0.5rem;">
+                                <option value="0">否</option>
+                                <option value="1" selected>是</option>
+                            </select>
+                        </div>
+                    </div>`);
+                        }
+                    }
+                }
+            }
+        });
+    }
+    findPrizeList();
+
+    //input失去焦点校验
+    function checkNumb(id) {
+        let value = Number($('#'+id).val());
+        if(value>=0 && value<=100){
+            $('#'+id).val(value);
+        }else{
+            $('#'+id).val('0');
+        }
+    };
+
+    //新增奖品跳转至奖品设置页面
+    function addPrize() {
+        window.location.href = "prizeAdd.html?from=0&configurationId="+configurationId;
+    };
+
+    //跳转到某个奖品设置页面
+    function goConfiguration(goodId) {
+        window.location.href = "prizeAdd.html?from=1&goodId="+goodId+"&configurationId="+configurationId;
+    }
+
+    function save() {
+        let orders = prizeList;
+        let sumProbability = 0;
+        let num = 0;
+
+        for (let i=0;i<orders.length;i++){
+            if($('#groundvalue'+orders[i].id).val() == 1){
+                sumProbability += Number($('#returnRate'+orders[i].id).val());
+                num++;
+            }
+        }
+        console.log(sumProbability)
+        if(sumProbability == 100){
+            for (let i=0;i<orders.length;i++){
+                let grounding = $('#groundvalue'+orders[i].id).val();
+                let returnRate = $('#returnRate'+orders[i].id).val();
+                console.log("ole："+orders[i].returnRate+"new："+returnRate);
+                if(grounding != orders[i].grounding || returnRate != orders[i].returnRate){
+                    update(orders[i].id,grounding,returnRate);
+                }
+            }
+        }else{
+            if(num == 0){
+                for (let i=0;i<orders.length;i++){
+                    let grounding = $('#groundvalue'+orders[i].id).val();
+                    let returnRate = $('#returnRate'+orders[i].id).val();
+                    if(grounding != orders[i].grounding || returnRate != orders[i].returnRate){
+                        console.log("ole："+orders[i].returnRate+"new："+returnRate);
+                        update(orders[i].id,grounding,returnRate);
+                    }
+                }
+            }else{
+                $('#pContent').empty();
+                findPrizeList();
+                $('.emptyTip').hide();
+                $('.tip').show();
+            }
+        }
+    }
+
+    function update(id,grounding,returnRate) {
+        $.ajax({
+            headers: {
+                "token": token
+            },
+            type: "post",
+            url: serverIp_+"/agency/good/update",
+            data: JSON.stringify({
+                "businessId":agencyId,
+                "configurationId": configurationId,
+                "id": id,
+                "grounding": grounding,
+                "returnRate": returnRate
+
+            }),
+            contentType: 'application/json;charset=UTF-8',
+            dataType: "json",
+            success: function(data){
+                console.log("奖品修改成功")
+                console.log(data);
+                // window.location.href="prizeSetting.html?configurationId="+configurationId;
+            }
+        });
+    }
+
+    // function grounding(event) {
+    //     //阻止事件冒泡
+    //     event.stopPropagation();
+    // }
+</script>
+</body>
+</html>

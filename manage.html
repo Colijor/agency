@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>商户管理</title>
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+</head>
+<body>
+<div class="container-fluid line">
+    <div class="nv0 nv">
+        <span class="back" ><img src="imgs/back.png" width="16">返回</span>
+    </div>
+    <div class="nv1 nv">
+        <div>
+            <!--<div class=" choose">-->
+                <!--<a role="button" href="#" id="choose">-->
+                    <!--筛选<span class="caret"></span>-->
+                <!--</a>-->
+            <!--</div>-->
+            <!--<div class="choose">-->
+                <!--<a role="button" href="#" id="all">-->
+                    <!--全部<span class="caret"></span>-->
+                <!--</a>-->
+            <!--</div>-->
+        </div>
+        <a href="addClient.html" class="addClient">+增加客户</a>
+
+        <!--筛选-->
+        <!--<div class="popup" id="choosePopup">-->
+            <!--<div class="popupChoose clearFloat">-->
+                <!--<p class="option">全部</p>-->
+                <!--<p class="option">按设备</p><p class="option">按时间</p><p class="option">按游戏</p>-->
+                <!--<p class="option">按运营商</p><p class="option">按商家</p><p class="option">按内容商</p>-->
+                <!--<p class="option">按代理商</p>-->
+            <!--</div>-->
+            <!--<div class="popupBtns">-->
+                <!--<input type="button" value="重置">-->
+                <!--<input type="button" value="确定">-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--全部弹窗-->
+        <!--<div class="popup" id="allPopup">-->
+            <!--<div class="popupChoose clearFloat">-->
+                <!--<p class="option">全部</p>-->
+                <!--<p class="option">四国坦克</p><p class="option">雷霆战车</p><p class="option">整蛊轮盘</p>-->
+                <!--<p class="option">致命骰子</p><p class="option">狼人杀</p>-->
+            <!--</div>-->
+            <!--<div class="popupBtns">-->
+                <!--<input type="button" value="重置">-->
+                <!--<input type="button" value="确定">-->
+            <!--</div>-->
+        <!--</div>-->
+
+    </div>
+</div>
+<!--<div class="nv2 nv">-->
+    <!--&lt;!&ndash;<input type="text" id="calendar2" data-options="{'type':'YYYY-MM-DD','beginYear':2010,'endYear':2088}" style="width:75px;height:19px;border: none;" value="">&ndash;&gt;-->
+    <!--<span id="calendar2" style="width:75px;height:15px;border: none;"></span>-->
+    <!--<span class="caret"></span>-->
+    <!--&lt;!&ndash;<p class="income money"><span>管理数量：</span><span>727</span></p>&ndash;&gt;-->
+    <!--&lt;!&ndash;<p class="spending money"><span>设备数量：</span><span>800</span></p>&ndash;&gt;-->
+<!--</div>-->
+
+</div>
+
+<section class="content">
+    <!--<div class="order">-->
+    <!--<div class="orderL"><img src="imgs/head.png" width="40"></div>-->
+    <!--<div class="orderM">-->
+    <!--<p>xxx餐饮店<br/>2019-3-13 16:54:43</p>-->
+    <!--</div>-->
+    <!--<a href="addMachine.html" class="orderR"><span class="orderNum machine">+设备</span></a>-->
+    <!--</div>-->
+</section>
+</div>
+
+
+
+<script src="lib/jquery-3.3.1.min.js"></script>
+<script src="lib/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="lib/jquery.date.js"></script>
+<script type="text/javascript" src="lib/jquery.cookie.js"></script>
+<script type="text/javascript">
+    $(function(){
+        // $("#choose").click(function () {
+        //     $('#allPopup').hide();
+        //     if($('#choosePopup').is(':hidden')){//如果当前隐藏
+        //         $('#choosePopup').show();
+        //     }else{
+        //         $('#choosePopup').hide();
+        //     }
+        //
+        // });
+        // $("#all").click(function () {
+        //     $('#choosePopup').hide();
+        //     if($('#allPopup').is(':hidden')){//如果当前隐藏
+        //         $('#allPopup').show();
+        //     }else{
+        //         $('#allPopup').hide();
+        //     }
+        //
+        // });
+        //日历
+        function getNow(s) {
+            return s < 10 ? '0' + s: s;
+        };
+        var myDate = new Date();
+        var year=myDate.getFullYear();
+        var month=myDate.getMonth()+1;
+        var date=myDate.getDate();
+        var now=year+'-'+getNow(month)+"-"+getNow(date);
+        // $("#calendar2").val(now);
+        $("#calendar2").text(now);
+        //$.date('#calendar2');
+
+        //点击获得选项
+        // var option;
+        // $(".option").click(function () {
+        //     if($(this).hasClass("optionClick")){
+        //         $(this).removeClass("optionClick");
+        //     }
+        //     else{
+        //         $(".option").removeClass("optionClick");
+        //         $(this).addClass("optionClick");
+        //     }
+        //     option=$(this).text();
+        //     console.log(option);
+        //
+        // });
+        //获得具体信息
+        let token= $.cookie('token');
+        let agencyId= $.cookie('agencyId');
+        let role= $.cookie('role');
+        let serverIp_ = localStorage.getItem("serverIp");
+        console.log(token)
+        $.ajax({
+            headers: {
+                "token": token
+            },
+            type: "get",
+            url: serverIp_+"/agency/agencyManager/business/list",
+            data: {
+                "agencyId":agencyId
+            },
+            contentType: 'application/json;charset=UTF-8',
+            dataType: "json",
+            success: function(data){
+                console.log(data);
+                let infoList=data.data;
+                for(let i=0;i<infoList.length;i++){
+                    $(".content").append(`
+                        <div class="order">
+                            <div class="orderL"><img src="imgs/head.png" width="40"></div>
+                        <div class="orderM" data-id=\"${infoList[i].id}\">
+                                <p>${infoList[i].name}<br/>${infoList[i].createTime}</p>
+                         </div>
+                            <span class="orderR" data-id=\"${infoList[i].id}\" data-name=\"${infoList[i].name}\"><img class="orderNum machine" src="imgs/add.png"></span>
+                        </div>
+                `);
+                };
+                //点击设备"+"
+                $(".orderR").click(function () {
+                    $(this).children().attr('src','imgs/add2.png');
+                    let businessId=$(this).data('id');
+                    let name=$(this).data('name');
+                    window.location.href=encodeURI("addMachine.html?businessId="+businessId+"&name="+name);
+                });
+                //跳转商户信息
+                $(".orderM").click(function (){
+                    let businessId=$(this).data("id");
+                    console.log(businessId);
+                    window.location.href="modifyClient.html?businessId="+businessId;
+                });
+
+            }
+        });
+//返回
+        $(".back").click(function () {
+            window.location.href="indexAddM.html?memberId="+agencyId+"&token="+token+"&role="+role;
+        });
+    })
+
+
+
+</script>
+</body>
+</html>

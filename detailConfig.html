@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>奖品配置</title>
+    <script src="js/flexible_css.debug.js"></script>
+    <script src="js/flexible.debug.js"></script>
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/prizeCommon.css">
+</head>
+<body>
+<div class="content">
+    <div class="nv lineBottom">
+        <span class="back" ><img src="imgs/back.png" style="width: 0.4rem">返回</span>
+    </div>
+    <div class="setting">
+        <div class="set">
+            <div class="setL">活动名称</div>
+            <div class="setR">
+                <input type="text" id="name" class="setCommon" placeholder="请输入一个抽奖活动名称" value=""/>
+            </div>
+        </div>
+        <div class="set">
+            <div class="setL">利润率抽成</div>
+            <div class="setR">
+                <input type="number" id="returnRate" class="setCommon lirun" value="0" onblur="checkNumb(1,'returnRate');"
+                       onkeyup="if(this.value.length==1){this.value=this.value.replace(/[^0-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}"
+                       onafterpaste="if(this.value.length==1){this.value=this.value.replace(/[^0-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}">%
+                <!--onkeyup="this.value.replace(/[^0-9.]+/g,'')" onafterpaste="this.value.replace(/[^0-9.]+/g,'')">%-->
+            </div>
+        </div>
+        <div class="set">
+            <div class="setL">每人每日中奖次数</div>
+            <div class="setR">
+                <input type="number" id="peopleWonPrizePerDay" class="setCommon" value="0" onblur="checkNumb(2,'peopleWonPrizePerDay');"
+                       onkeyup="if(this.value.length==1){this.value=this.value.replace(/[^0-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}"
+                       onafterpaste="if(this.value.length==1){this.value=this.value.replace(/[^0-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}">
+            </div>
+        </div>
+        <div class="set">
+            <div class="setL">每日抽奖赠送次数</div>
+            <div class="setR">
+                <input type="number" id="freeTimes" class="setCommon" value="0" onblur="checkNumb(2,'freeTimes');"
+                       onkeyup="if(this.value.length==1){this.value=this.value.replace(/[^0-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}"
+                       onafterpaste="if(this.value.length==1){this.value=this.value.replace(/[^0-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}">
+            </div>
+        </div>
+        <div class="set">
+            <div class="setL">是否促销模式</div>
+            <div class="setR">
+                <select id="isPromote" class="setCommon">
+                    <option value="0" selected>否</option>
+                    <option value="1">是</option>
+                </select>
+            </div>
+        </div>
+        <div class="set">
+            <div class="setL">抽奖模式</div>
+            <div class="setR">
+                <select id="pattern" class="setCommon">
+                    <option value="0" selected>游戏模式</option>
+                    <option value="1">免费模式</option>
+                    <option value="2">收费模式</option>
+                </select>
+            </div>
+        </div>
+        <!--<div class="set">-->
+        <!--<div class="setL">设置有效日期</div>-->
+        <!--<div class="setR">-->
+        <!--<select id="timeStart" class="setTime">-->
+        <!--<option value="0" selected>当日可用</option>-->
+        <!--<option value="1">明日可用</option>-->
+        <!--</select>-->
+        <!--<select id="timeEnd" class="setTime">-->
+        <!--<option value="0" selected>当日有效</option>-->
+        <!--<option value="1">1天</option>-->
+        <!--<option value="5">5天</option>-->
+        <!--<option value="7">7天</option>-->
+        <!--<option value="15">15天</option>-->
+        <!--<option value="30">30天</option>-->
+        <!--<option value="60">60天</option>-->
+        <!--<option value="90">90天</option>-->
+        <!--</select>-->
+        <!--</div>-->
+        <!--</div>-->
+    </div>
+    <div class="errorTip">
+    </div>
+    <div id="firstStep" class="setBtn" onclick="addConfiguration()">
+        <span>第一步 保存基础配置</span>
+        <input type="button" id="basicSet" class="complete" value="保存"/>
+    </div>
+    <div id="secondStep" class="setBtn" onclick="prizeSet()">
+        <span>第二步 前往奖品设置</span>
+        <input type="button" id="prizeSet" class="noComplete" value="未完成"/>
+    </div>
+    <div id="thirdStep" class="setBtn" onclick="bindScreenCode()">
+        <span>第三步 绑定商家/设备</span>
+        <input type="button" id="bindScreenCode" class="noComplete" value="未完成"/>
+    </div>
+    <!--<input type="submit" class="save" value="确认提交"/>-->
+</div>
+
+
+
+<script src="lib/jquery-3.3.1.min.js"></script>
+<script src="lib/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="lib/jquery.date.js"></script>
+<script type="text/javascript" src="lib/jquery.cookie.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
+    let token= $.cookie('token');
+    let agencyId= $.cookie('agencyId');//商户ID，登录的时候返回的memberId
+    let serverIp_ = localStorage.getItem("serverIp");
+    //返回
+    $(".back").click(function () {
+        window.location.href="prizeConfig.html";
+    });
+
+    //主要防止出现0233这种数
+    //type==1：0~100的正数、最多带两位的小数
+    //type==2：大于等于0的正整数
+    function checkNumb(type,id) {
+        let value = Number($('#'+id).val());
+        if(type == 1){
+            if(value>=0 && value<=100){
+                $('#'+id).val(value);
+            }else{
+                $('#'+id).val('0');
+            }
+        }else{
+            $('#'+id).val(value);
+        }
+    };
+
+    //判断from=0是点击“新增活动”跳转过来的，from=1点击“配置”按钮跳转过来的
+    let urlParamInfo = urlParam();
+    console.log(urlParamInfo);
+    let from = urlParamInfo.from;
+    let configurationId = urlParamInfo.configurationId || '';
+    //首先单个活动配置查询
+    function firstAction(){
+        if(from == 1 && configurationId != ''){
+            $.ajax({
+                headers: {
+                    "token": token
+                },
+                type: "get",
+                url: serverIp_+"/agency/good/configuration/get/singleton/"+configurationId,
+                data: "",
+                contentType: 'application/json;charset=UTF-8',
+                dataType: "json",
+                success: function (data) {
+                    $('#name').val(data.data.name);
+                    $('#returnRate').val(data.data.returnRate);
+                    $('#peopleWonPrizePerDay').val(data.data.peopleWonPrizePerDay);
+                    $('#freeTimes').val(data.data.freeTimes);
+                    $('#isPromote').val(data.data.isPromote);
+                    $('#pattern').val(data.data.pattern);
+                }
+            });
+        }
+    }
+    firstAction();
+
+    //查询奖品列表不为空，第二步按钮显示为完成
+    function findPrizeList() {
+        if(configurationId != ''){
+            $.ajax({
+                headers: {
+                    "token": token
+                },
+                type: "get",
+                url: serverIp_+"/agency/good/get/list/" + configurationId,
+                data: "",
+                contentType: 'application/json;charset=UTF-8',
+                dataType: "json",
+                success: function (data) {
+                    let orders = data.data;
+                    if(orders && orders.length != 0){
+                        console.log("change Class")
+                        $('#prizeSet').removeClass("noComplete").addClass("complete");
+                        $('#prizeSet').val('完成');
+                    }
+                }
+            });
+        }
+    }
+    findPrizeList();
+
+    //商家是否有绑定设备盒子
+    function isbindCode(){
+        if(configurationId != '') {
+            $.ajax({
+                headers: {
+                    "token": token
+                },
+                type: "get",
+                url: serverIp_ + "/agency/good/bind/list/get",
+                data: {
+                    "businessId": agencyId,
+                    "configurationId": configurationId
+                },
+                async: false,
+                contentType: 'application/json;charset=UTF-8',
+                dataType: "json",
+                success: function (data) {
+                    let screenCodeList = data.data;
+                    for (let i = 0; i < screenCodeList.length; i++) {
+                        if (screenCodeList[i].isBind == 1) {
+                            $('#bindScreenCode').removeClass("noComplete").addClass("complete");
+                            $('#bindScreenCode').val('完成');
+                            break;
+                        }
+                    }
+                }
+            });
+        }
+    }
+    isbindCode();
+
+    function isnotNull() {
+        let name = $('#name').val();
+        let returnRate = $('#returnRate').val();
+        let peopleWonPrizePerDay = $('#peopleWonPrizePerDay').val();
+        let freeTimes = $('#freeTimes').val();
+        if(name == ''){
+            $('.errorTip').empty();
+            $('.errorTip').append(`<span>抽奖活动名称不能为空！</span>`);
+            return false;
+        }
+        if(returnRate == ''){
+            $('.errorTip').empty();
+            $('.errorTip').append(`<span>利润率抽成不能为空！</span>`);
+            return false;
+        }
+        if(peopleWonPrizePerDay == ''){
+            $('.errorTip').empty();
+            $('.errorTip').append(`<span>每人每日中奖次数不能为空！</span>`);
+            return false;
+        }
+        if(freeTimes == ''){
+            $('.errorTip').empty();
+            $('.errorTip').append(`<span>每日抽奖赠送次数不能为空！</span>`);
+            return false;
+        }
+        return true;
+    }
+
+    function addConfiguration() {
+        if(isnotNull()){
+            let name = $('#name').val();
+            let returnRate = $('#returnRate').val();
+            let peopleWonPrizePerDay = $('#peopleWonPrizePerDay').val();
+            let freeTimes = $('#freeTimes').val();
+            let isPromote = $('#isPromote').val();
+            let pattern = $('#pattern').val();
+            if(from == 0){
+                let data = {
+                    "businessId":agencyId,
+                    "name": name,
+                    "returnRate": returnRate,
+                    "peopleWonPrizePerDay": peopleWonPrizePerDay,
+                    "freeTimes": freeTimes,
+                    "isPromote": isPromote,
+                    "pattern": pattern
+                };
+                $.ajax({
+                    headers: {
+                        "token": token
+                    },
+                    type: "post",
+                    url: serverIp_+"/agency/good/configuration/add",
+                    data: JSON.stringify({
+                        "businessId":agencyId,
+                        "name": name,
+                        "returnRate": returnRate,
+                        "peopleWonPrizePerDay": peopleWonPrizePerDay,
+                        "freeTimes": freeTimes,
+                        "isPromote": isPromote,
+                        "pattern": pattern
+                    }),
+                    contentType: 'application/json;charset=UTF-8',
+                    dataType: "json",
+                    success: function (res) {
+                        if(res.code === 0){
+                            configurationId = res.data;
+                            $('.errorTip').empty();
+                            $('.errorTip').append(`<span>保存成功！</span>`);
+                        }
+                    }
+                });
+            }else{
+                $.ajax({
+                    headers: {
+                        "token": token
+                    },
+                    type: "post",
+                    url: serverIp_+"/agency/good/configuration/update",
+                    data: JSON.stringify({
+                        "id":configurationId,
+                        "businessId":agencyId,
+                        "name": name,
+                        "returnRate": returnRate,
+                        "peopleWonPrizePerDay": peopleWonPrizePerDay,
+                        "freeTimes": freeTimes,
+                        "isPromote": isPromote,
+                        "pattern": pattern
+                    }),
+                    contentType: 'application/json;charset=UTF-8',
+                    dataType: "json",
+                    success: function (res) {
+                        if(res.code == 0){
+                            $('.errorTip').empty();
+                            $('.errorTip').append(`<span>保存成功！</span>`);
+                        }
+                    }
+                })
+            }
+        }
+    }
+
+    //跳转到奖品设置
+    function prizeSet() {
+        if(configurationId != ''){
+            window.location.href="prizeSetting.html?configurationId="+configurationId;
+        }else{
+            alert("请先设置保存第一步基础配置");
+        }
+    }
+
+    //跳转绑定商家/设备
+    function bindScreenCode() {
+        if(configurationId != ''){
+            window.location.href="bindScreenCode.html?configurationId="+configurationId;
+        }else{
+            alert("请先设置保存第一步基础配置");
+        }
+    };
+</script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>游戏统计</title>
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="lib/dropload/dropload.css">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+</head>
+<body>
+<div class="container-fluid line">
+    <div class="nv0 nv">
+        <span class="back"><img src="imgs/back.png" width="16">返回</span>
+    </div>
+    <div class="nv3" style="display: flex;justify-content: space-between;">
+
+        <div class="choose">
+            <a role="button" href="#" id="all">
+                全部<span class="caret"></span>
+            </a>
+        </div>
+        <!--<div class="nv2 nv3">-->
+        <p style="display: inline-block">
+            <div class="calBox2"><input type="text" id="calendarD1" data-options="{'type':'YYYY-MM-DD','beginYear':2010,'endYear':2088}" style="width:72px;height:30px;" value="" placeholder=" 开始时间"> <span class="caret" style="margin: 0"></span></div>
+        </p>
+        <p style="display: inline-block">-</p>
+        <p style="display: inline-block">
+            <div class="calBox2"><input type="text" id="calendarD2" data-options="{'type':'YYYY-MM-DD','beginYear':2010,'endYear':2088}" style="width:72px;height:30px;" value="" placeholder=" 结束时间"> <span class="caret" style="margin: 0"></span></div>
+        </p>
+        <!--</div>-->
+
+        <div class="find">
+            <input type="button" value="查询" id="findBtn">
+        </div>
+        <div class="popup" id="allPopup">
+            <div class="popupChoose clearFloat" id="games">
+                <p class="option" data-code="all">全部游戏</p>
+            </div>
+            <div class="popupBtns">
+                <input type="button" value="重置" id="allReset">
+                <input type="button" value="确定" id="allBtn">
+            </div>
+        </div>
+    </div>
+
+    <div class="nv" style="display: flex;justify-content: space-around;">
+        <p class="income money" style="display: inline-block"><span>游戏数量：</span><span id="gameNumber">0</span></p>
+        <p class="income money" style="display: inline-block"><span>终端数量：</span><span id="deviceNumber">0</span></p>
+    </div>
+
+    <section class="content" id="bContent">
+        <!--<div class="order">-->
+            <!--<div class="orderL"><img src="imgs/head.png" width="40"></div>-->
+            <!--<div class="orderM">-->
+                <!--<span class="orderNum">狼人杀</span>-->
+            <!--</div>-->
+            <!--<div class="orderR"><span class="orderNum">+0.02</span></div>-->
+        <!--</div>-->
+    </section>
+    <div>
+        <a href="javacript:void(0);" style="width: 40px;height: 40px;border-radius: 50%;background: #cf9455;border: 1px solid #cf9455;display: block;position: fixed;
+        bottom: 62px;right: 50px;z-index: 999;color: #fff;display: none" class="set_top">
+            <span class="fa fa-chevron-up" aria-hidden="true" style="position: absolute;left: 50%; top: 46%;transform: translate(-50%,-50%);width: 30px">置顶</span>
+        </a>
+    </div>
+</div>
+
+
+
+<script src="lib/jquery-3.3.1.min.js"></script>
+<script src="lib/bootstrap/bootstrap.min.js"></script>
+<script src="lib/jquery.cookie.js"></script>
+<script type="text/javascript" src="lib/jquery.date.js"></script>
+<script src="lib/dropload/dropload.min.js"></script>
+<script src="js/common.js"></script>
+<script type="text/javascript">
+    $(function(){
+        let gameCodeList = JSON.parse(localStorage.getItem('gameCodeList'));
+        for (let i = 0; i < gameCodeList.length; i++) {
+            $("#games").append(`<p class="option" data-code="${gameCodeList[i].code}">${gameCodeList[i].gameName}</p>`)
+        }
+        $(".dropload-down").remove();
+        $("#all").on('click',function () {
+            $('#choosePopup').hide();
+            if($('#allPopup').is(':hidden')){//如果当前隐藏
+                $('#allPopup').show();
+            }else{
+                $('#allPopup').hide();
+            }
+
+        });
+        //日历
+        $.date('#calendarD1');
+        $.date('#calendarD2');
+
+        //点击获得选项
+        var code;
+        var gameName="全部游戏";
+        let token= $.cookie('token');
+        let agencyId= $.cookie('agencyId');//商户ID，登录的时候返回的memberId
+        agencyId = parseInt(agencyId);
+        let role= $.cookie('role');
+        let serverIp_ = localStorage.getItem("serverIp");
+        let isGameChoose=false;
+        let calendarChoose=false;
+        var switchCode = 2;
+        //上拉加载
+        function loadMore(){
+            let startTime=$("#calendarD1").val();
+            let endTime=$("#calendarD2").val();
+            let msg;
+            if(calendarChoose==true && isGameChoose==false){//按开始和结束时间查询
+                msg = {
+                    "id": agencyId,
+                    "switchCode": switchCode,
+                    "startTime": startTime,
+                    "endTime": endTime,
+                };
+            }else if(isGameChoose==true && calendarChoose==false){//按游戏查询
+                msg = {
+                    "id": agencyId,
+                    "switchCode": switchCode,
+                    "gameCode": code
+                };
+            }else if(calendarChoose==false && isGameChoose==false){//默认查询全部
+                msg = {
+                    "id": agencyId,
+                    "switchCode": switchCode,
+                };
+            }else if(calendarChoose==true && isGameChoose==true) {//按游戏、开始和结束时间查询
+                msg = {
+                    "id": agencyId,
+                    "switchCode": switchCode,
+                    "gameCode": code,
+                    "startTime": startTime,
+                    "endTime": endTime,
+                };
+            };
+            $.ajax({
+                headers: {
+                    "token": token
+                },
+                type: "get",
+                contentType: 'application/json;charset=UTF-8',
+                dataType: "json",
+                url: serverIp_+"/agency/contentProvider/report",
+                data:msg,
+                success: function(data){
+                    let msg=data.data;
+                    console.log(msg);
+                    if(msg && msg != undefined) {
+                        let orders = msg.gameIncomeList;
+                        $("#gameNumber").text(orders.length);
+                        $("#deviceNumber").text(msg.deviceNumber);
+                        for (let i = 0; i < orders.length; i++) {
+                            $("#bContent").append(`<div class="order">
+                                    <div class="contentL"><img src=\"${orders[i].iconUrl}\" width="40"></div>
+                                    <div class="contentM">
+                                        <span class="orderNum">${orders[i].gameName}</span>
+                                    </div>
+                                    <div class="contentR"><span class="orderNum" style="right: 0;">累计收入：${orders[i].income / 100}元</span></div>
+                                </div>`);
+                        }
+                    }else {
+                        $("#gameNumber").text('0');
+                    }
+                }
+            });
+        }
+        loadMore();
+
+//日期搜索
+        $("#d-confirm").on('click',function () {
+            $('#bContent').empty();
+            calendarChoose=true;
+        });
+
+//游戏筛选确定
+        $(".option").on('click',function () {
+            console.log($(this).hasClass("optionClick"));
+            if($(this).hasClass("optionClick")){
+                $(this).removeClass("optionClick");
+            }else{
+                $(".option").removeClass("optionClick");
+                $(this).addClass("optionClick");
+            }
+            gameName=$(this).text();
+            code=$(this).data("code");
+        });
+
+
+        $("#allBtn").on('click',function () {
+            $('#allPopup').hide();
+            $("#all").empty();
+            $("#all").append(`${gameName}<span class="caret"></span>`);
+            $(".option").removeClass("optionClick");
+            isGameChoose=true;
+            console.log(code);
+            $('#bContent').empty();
+            if(code=="all"){isGameChoose=false;}
+        });
+        //游戏筛选重置
+        $("#allReset").on('click',function () {
+            $(".option").removeClass("optionClick");
+            gameName="全部游戏";
+            code=undefined;
+        });
+
+        //查询
+        $("#findBtn").on('click',function () {
+            $('#bContent').empty();
+            loadMore();
+        });
+
+        //下拉框重置
+        $("#chooseReset").on('click',function () {
+            $(".option").each(function () {
+                if ($(this).hasClass("optionClick")){
+                    $(this).removeClass("optionClick");
+                };
+            })
+        });
+        //下拉框确定
+        $("#chooseBtn").on('click',function () {
+            //清空数据
+            //添加新数据
+        });
+        //返回首页
+        $(".back").on('click',function () {
+            let agencyId2= $.cookie('agencyId');
+            window.location.href="indexAddM.html?memberId="+agencyId2+"&token="+token+"&role="+role;
+        })
+
+
+    })
+
+
+
+</script>
+</body>
+</html>

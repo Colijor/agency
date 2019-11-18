@@ -1,0 +1,104 @@
+*{padding: 0;margin: 0;}
+
+.content{width: 100%;}
+.lineBottom{border-bottom: 0.025rem solid #ddd;}
+.nv{display: inline-block;width: 100%;height: 1.125rem;border-bottom:0.025rem solid #ddd;padding: 0rem 0.25rem;line-height: 1.125rem;position: relative}
+.back{color: black;text-decorareporttion: none;}
+
+.title1{text-align: center;width: 100%;height: 0.875rem;line-height: 0.875rem;font-weight: bolder;}
+
+.title2{display: flex;padding: 0rem 0.25rem;position: relative;height: 1.0rem;line-height: 1.0rem;font-weight: bolder;}
+.titleL{flex: 1}
+.titleM{flex: 4}
+.titleR{flex: 1;position: relative;}
+.prizeTip{display: flex;justify-content: space-around;padding: 0rem 0.25rem;position: relative;height: 1.0rem;line-height: 1.0rem;font-weight: bolder;}
+
+.record{display: flex;padding: 0rem 0.25rem;position: relative;height: 1.375rem;align-items: center;}
+.recordL{flex: 1;font-weight: bolder;}
+.recordM{flex: 4;font-weight: bolder;}
+.recordR{flex: 2;position: relative;}
+
+.prizeContent{display: flex;text-align: center;align-items: center;padding: 0rem 0.25rem;position: relative;height: 1.375rem;}
+.prizeContent01{flex: 1;}
+.prizeContent02{flex: 1.5;text-overflow: ellipsis;white-space: nowrap;overflow: hidden;}
+.prizeContent01 input{width: 1.0rem;text-align: center;}
+.prizeImg{width: 1.25rem;height: 1.25rem;}
+
+.bindActive{display: flex;text-align: center;align-items: center;padding: 0rem 0.25rem;position: relative;height: 1.375rem;}
+.bind1{flex: 1;position: relative;}
+.bind2{flex: 2;}
+.check{width: 100%;height: 100%;display: flex;align-items: center;justify-content: center;}
+.cbox{width: 0.4rem;height: 0.4rem;background: #fff;border-radius: 0.05rem;margin: 0rem !important;}
+
+.set{display: flex;margin: 0.125rem 0rem;padding: 0rem 0.5rem;position: relative;height: 1.0rem;align-items: center;}
+.setL{flex: 1.5;font-weight: bolder;}
+.setR{flex: 2;position: relative;}
+.setCommon{height: 0.875rem;width: 5.0rem;text-align: center;}
+.lirun{width: 4.7rem;}
+.setTime{height: 0.875rem;width: 2.5rem;text-align: center;}
+
+.addSet{display: flex;margin: 0.125rem 0rem;padding: 0rem 0.5rem;position: relative;height: 1.0rem;align-items: center;}
+.addSetL{flex: 1;font-weight: bolder;}
+.addSetR{flex: 2;position: relative;}
+
+.edit{width: 100%;height: 100%;line-height: 100%;display: flex;justify-content: space-between;align-items: center;}
+.edit button{height: 0.875rem;width: 1.25rem;border: none;border-radius: 0.1rem;color: #fff;}
+.edit a{color: #fff;}
+#Configuration{background: #118eea;}
+#delete{background: #ff0504;}
+
+.errorTip,.tip{margin: 0.3rem 0.0rem;text-align: center;font-size: 0.4rem;color: #ff0504;font-weight: bolder;}
+.tip{display:none;}
+.emptyTip{height: 1.5rem;}
+.setBtn{width: 100%;height: 1.0rem;line-height: 1.0rem;color: #fff;background: #118eea;text-align: center;margin-top: 0.3rem;}
+.setBtn input{position: absolute;right: 0.5rem;margin-top: 0.125rem;width: 1.5rem;height: 0.75rem;line-height: 0.75rem;border: none;border-radius: 0.1rem;}
+.setBtn a{color: #fff;}
+.save{width: 100%;height: 0.875rem;line-height: 0.875rem;color: #fff;background: #00c2f3;text-align: center;margin-top: 0.5rem;border: none;}
+.addActive,.delBtn{width: 100%;height: 0.875rem;line-height: 0.875rem;color: #fff;background: #118eea;text-align: center;}
+.addActive a{color: #fff;}
+.delBtn{color: #808080;background: #dcdcdc;border: none;}
+.description{height: 1.0rem;}
+#description{width: 5.5rem;height: 1.0rem;}
+.complete{background-color: #00ff00;}
+.noComplete{background-color: #ffff00;}
+
+#imgPreview {
+    width: 100%;
+    height: auto;
+    margin: 0.25rem auto 0.25rem auto;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+}
+#prompt3 {
+    width: 2.5rem;
+    height: 2.5rem;
+    text-align: center;
+    position: relative;
+}
+#imgSpan {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0.0rem;
+    left: 0.0rem;
+    color: #808080;
+}
+.imgDiv{
+    width: 100%;
+    margin: 0.5rem 0rem 0.225rem 0rem;
+}
+.upImg{
+    width: 1.0rem;
+    height: 1.0rem;
+}
+.filepath {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+}
+#img3 {
+    height: 2.5rem;
+    width:  2.5rem;
+    display: none;
+}

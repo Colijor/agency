@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>滑动拼图验证码</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <style>
+        .container {
+            width: 310px;
+            margin: 30px auto;
+        }
+        input {
+            display: block;
+            width: 290px;
+            line-height: 40px;
+            margin: 10px auto;
+            padding: 0 10px;
+            outline: none;
+            border:1px solid #c8cccf;
+            border-radius: 4px;
+            color:#6a6f77;
+        }
+        #msg {
+            width: 100%;
+            line-height: 40px;
+            font-size: 14px;
+            text-align: center;
+        }
+        a:link,a:visited,a:hover,a:active {
+            margin-left: 100px;
+            color: #0366D6;
+        }
+        h3{text-align: center;margin-top: 30px;}
+        #login{width: 120px;background: #169bd5;color: white;border: none;outline: none;line-height: 35px;margin: 0 auto}
+    </style>
+</head>
+<body>
+<h3>滑动滑块验证</h3>
+<div class="container">
+    <div id="captcha"></div>
+    <div id="msg"></div>
+</div>
+<div><input type="button" value="注册" id="reg"></div>
+<script src="lib/jquery-3.3.1.min.js"></script>
+<script>
+    if (!window.jigsaw) {
+        document.write('<script src="./lib/jigsaw.min.js"><\/script>')
+    }
+</script>
+<script>
+    jigsaw.init({
+        el: document.getElementById('captcha'),
+        onSuccess: function() {
+            var str=location.search.slice(1);//获得用户账户密码信息
+            console.log(str);
+            var arr=str.split("&");//数组转换成json
+            var userInfo=new Object();
+            for(var i=0;i < arr.length;i++){
+                var num=arr[i].indexOf("=");
+                if(num>0){
+                    var name=arr[i].substring(0,num);
+                    var value=arr[i].substr(num+1);
+                    userInfo[name]=value;
+                }
+            };
+            let serverIp_ = localStorage.getItem("serverIp");
+            document.getElementById('msg').innerHTML = '验证成功！请点击确定按钮注册吧';
+            $("#reg").css({"background":"#169bd5","color":"white"});
+            var reg=document.getElementById('reg');
+            reg.onclick=function registerFun(){
+                console.log(userInfo);
+                $.ajax({
+                    type: "post",
+                    url: serverIp_+"/agency/register",
+                    data: JSON.stringify(userInfo),
+                    contentType: "application/json",
+                    dataType: "json",
+                    success: function(data){
+                        console.log(data);
+                        window.location.href="registerToLogin.html";
+                    }
+                });
+            }
+        },
+        onFail: cleanMsg,
+        onRefresh: cleanMsg
+    })
+    function cleanMsg() {
+        document.getElementById('msg').innerHTML = ''
+    }
+</script>
+</body>
+</html>

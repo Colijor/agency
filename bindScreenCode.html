@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>绑定商家/设备</title>
+    <!--<script src="http://g.tbcdn.cn/mtb/lib-flexible/0.3.4/??flexible_css.js,flexible.js"></script>-->
+    <script src="js/flexible_css.debug.js"></script>
+    <script src="js/flexible.debug.js"></script>
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/prizeCommon.css">
+</head>
+<body>
+<div class="content">
+    <div class="nv lineBottom">
+        <span class="back" ><img src="imgs/back.png" style="width: 0.4rem">返回</span>
+    </div>
+    <div class="title1 lineBottom">
+        <span>商家抽奖活动绑定</span>
+    </div>
+    <div class="bindActive lineBottom">
+        <div class="bind1"><span>序号</span></div>
+        <div class="bind1"><span>屏幕码</span></div>
+        <div class="bind2"><span>商户名称</span></div>
+        <div class="bind1"><span>绑定勾选</span></div>
+    </div>
+    <div style="height: 9.625rem; overflow: hidden;">
+        <section id="bindContent" style="height: 9.625rem;overflow-y: auto;">
+            <!--<div class="bindActive lineBottom">-->
+                <!--<div class="bind1" id="num"><span>1</span></div>-->
+                <!--<div class="bind1" id="screenCode"><span>10267</span></div>-->
+                <!--<div class="bind2" id="businessName"><span>海底捞深圳总店</span></div>-->
+                <!--<div class="bind1" id="isBind">-->
+                    <!--<div class="check">-->
+                        <!--<input type="checkbox" class="cbox" value="0">-->
+                        <!--<span id="bindText">未绑定</span>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        </section>
+    </div>
+    <div class="tip">
+        <span>提示：取消勾选则表示取消绑定</span>
+    </div>
+    <input type="button" class="save" value="保存" onclick="saveScreenCode()"/>
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"
+         style="width: 7.5rem;height: 4.6rem;top: 50%;left: 50%;transform: translate(-50%,-50%);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body" style="height: 3.0rem;line-height: 3.0rem;text-align: center;">
+                    该设备已被其他活动绑定，是否强制绑定！
+                </div>
+             <div class="modal-footer" style="display: flex;justify-content: space-around;">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" style="width: 2.0rem;height: 0.875rem;font-size: 24px;">
+                        取消
+                    </button>
+                    <button type="button" id="sure" class="btn btn-primary" style="width: 2.0rem;height: 0.875rem;font-size: 24px;">
+                        确定
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="lib/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="lib/jquery.date.js"></script>
+<script type="text/javascript" src="lib/jquery.cookie.js"></script>
+<script src="lib/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
+    let token= $.cookie('token');
+    let agencyId= $.cookie('agencyId');//商户ID，登录的时候返回的memberId
+    let role= $.cookie('role');
+    let serverIp_ = localStorage.getItem("serverIp");
+
+    let urlInfo = urlParam();
+    let configurationId = urlInfo.configurationId;
+    //返回
+    $(".back").click(function () {
+        window.location.href="detailConfig.html?from=1&configurationId="+configurationId;
+    });
+
+    let codeList = [];
+    //获取商家可以绑定的盒子的商家名称
+    function boxList(){
+        $.ajax({
+            headers: {
+                "token": token
+            },
+            type: "get",
+            url: serverIp_+"/agency/business/get/information",
+            data:{
+                "businessId":agencyId
+            },
+            async: false,
+            contentType: 'application/json;charset=UTF-8',
+            dataType: "json",
+            success: function (data) {
+                let businessName = data.data.name;
+                $.ajax({
+                    headers: {
+                        "token": token
+                    },
+                    type: "get",
+                    url: serverIp_+"/agency/good/bind/list/get",
+                    data: {
+                        "businessId": agencyId,
+                        "configurationId": configurationId
+                    },
+                    async: false,
+                    contentType: 'application/json;charset=UTF-8',
+                    dataType: "json",
+                    success: function (data) {
+                        let screenCodeList = data.data;
+                        codeList = screenCodeList;
+                        $("#bindContent").empty();
+                        for (let i = 0; i < screenCodeList.length; i++) {
+                            if (screenCodeList[i].isBind == 1) {
+                                $("#bindContent").append(`<div class="bindActive lineBottom">
+                                <div class="bind1" id="num"><span>${i + 1}</span></div>
+                                <div class="bind1" id="screenCode"><span>${screenCodeList[i].screenCode}</span></div>
+                                <div class="bind2" id="businessName"><span>${businessName}</span></div>
+                                <div class="bind1" id="isBind">
+                                    <div class="check">
+                                        <input type="checkbox" name="checkbox" class="cbox" value="${screenCodeList[i].screenCode}" checked>
+                                        <span style="color: #00ff00">已绑定</span>
+                                    </div>
+                                </div>
+                            </div>
+                            `);
+                            } else {
+                                $("#bindContent").append(`<div class="bindActive lineBottom">
+                                <div class="bind1" id="num"><span>${i + 1}</span></div>
+                                <div class="bind1" id="screenCode"><span>${screenCodeList[i].screenCode}</span></div>
+                                <div class="bind2" id="businessName"><span>${businessName}</span></div>
+                                <div class="bind1" id="isBind">
+                                    <div class="check">
+                                        <input type="checkbox" name="checkbox" class="cbox" value="${screenCodeList[i].screenCode}">
+                                        <span style="color: #ff0504">未绑定</span>
+                                    </div>
+                                </div>
+                            </div>
+                            `);
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    }
+    boxList();
+
+    function checkBind(){
+        for(let i=0;i<codeList.length;i++){
+            if(codeList[i].isBind == 1){
+                codeList[i].isBind = 0;
+            }else{
+                codeList[i].isBind = 1;
+            }
+        }
+        let bindArray = [];//0绑定，1解绑
+        let obj = document.getElementsByName('checkbox');
+        for(let i=0;i<obj.length;i++){
+            console.log(obj[i].value+obj[i].checked);
+            if(obj[i].checked){
+                let arr = {"id": obj[i].value,"isBind": 0};
+                bindArray.push(arr);
+            }else{
+                let arr = {"id": obj[i].value,"isBind": 1};
+                bindArray.push(arr);
+            }
+        }
+        let array = [];
+        for(let j=0;j<bindArray.length;j++){
+            for(let i=0;i<codeList.length;i++) {
+                if (bindArray[j].id == codeList[i].screenCode && bindArray[j].isBind != codeList[i].isBind) {
+                    array.push(bindArray[j]);
+                    break;
+                }
+            }
+        }
+        return array;
+    }
+
+    let screenCodes = '';
+    function saveScreenCode() {
+        //绑定屏幕码之前，先判断该屏幕码是否被其他活动绑定，是则提示商家“是否强制绑定该屏幕码”
+        let array = checkBind();
+        console.log(array);
+        if(array && array.length != 0){
+            for(let i=0;i<array.length;i++){
+                let screenCode = array[i].id;
+                let isBind = array[i].isBind;
+                if(isBind == 1){//解绑
+                    $.ajax({
+                        headers:{
+                            "token": token
+                        },
+                        type: "get",
+                        url: serverIp_+"/agency/good/bind",
+                       data: {
+                            "configurationId": configurationId,
+                            "screenCode": screenCode,
+                            "isBind": 1
+                        },
+                        contentType: 'application/json;charset=UTF-8',
+                        dataType: "json",
+                        success: function (data) {
+                            console.log(data);
+                            console.log("解绑成功！");
+                            boxList();
+                        }
+                    });
+                }else if(isBind == 0){//绑定前查询屏幕码有没有被其他活动绑定，有的话提示是否强制绑定
+                    $.ajax({
+                        headers:{
+                            "token": token
+                        },
+                        type: "get",
+                        url: serverIp_+"/agency/good/configuration/exists",
+                        data: {
+                            "screenCode": screenCode
+                        },
+                        contentType: 'application/json;charset=UTF-8',
+                        dataType: "json",
+                        success: function (data) {
+                            console.log(data.code)
+                            if(data.code == 0){
+                                $.ajax({
+                                    headers:{
+                                        "token": token
+                                    },
+                                    type: "get",
+                                    url: serverIp_+"/agency/good/bind",
+                                    data: {
+                                        "configurationId": configurationId,
+                                        "screenCode": screenCode,
+                                        "isBind": isBind
+                                    },
+                                    contentType: 'application/json;charset=UTF-8',
+                                    dataType: "json",
+                                    success: function () {
+                                        console.log(data);
+                                        console.log("绑定盒子成功！");
+                                        boxList();
+                                    }
+                                });
+                            }else{
+                                $('#myModal').modal('show');
+                                screenCodes = screenCode;
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    $('#sure').click(function () {
+        $.ajax({
+            headers:{
+                "token": token
+            },
+            type: "get",
+            url: serverIp_+"/agency/good/bind",
+            data: {
+                "configurationId": configurationId,
+                "screenCode": screenCodes,
+                "isBind": 0
+            },
+            contentType: 'application/json;charset=UTF-8',
+            dataType:"json",
+            success: function (data) {
+                console.log(data);
+                console.log("绑定盒子成功！")
+                $('#myModal').modal('hide');
+                boxList();
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+</head>
+<body>
+<div class="container-fluid line">
+    <div class="nv0 nv">
+        <span class="back" ><img src="imgs/back.png" width="16">返回</span>
+    </div>
+    <section class="container">
+        <h3 class="addMT">绑定设备、添加设备</h3>
+        <div class="addMContent">
+            <form class="bs-example bs-example-form" role="form">
+                <div class="input-group" style="width: 100%;" id="addMachineName">
+                    <input type="text" class="form-control" value="海底捞（深圳）商户码10156" readonly="readonly" id="busiName">
+                </div>
+                <!--<br>-->
+                <!--<div class="input-group bindingBtn">-->
+                <!--<input type="text" class="form-control" value="10171">-->
+                <!--<button type="button" class="btn btn-primary">解绑</button>-->
+                <!--</div>-->
+                <!--<br>-->
+                <!--<div class="input-group bindingBtn">-->
+                <!--<input type="text" class="form-control" value="10171">-->
+                <!--<button type="button" class="btn btn-danger">解绑</button>-->
+                <!--</div>-->
+                <br>
+                <div class="input-group" style="width: 100%;">
+                    <button type="button" class="btn btn-default" style="width: 100%;font-weight: bold;background: #169bd5;color: white" id="addBox">+新增</button>
+                </div>
+            </form>
+            <!--<button type=tton" class="btn btn-default" style="width: 60%;font-weight: bold;background:#ccc;color: white;margin-top: 80px;">确认提交</button>-->
+        </div>
+    </section>
+</div>
+
+<script src="lib/jquery-3.3.1.min.js"></script>
+<script src="lib/bootstrap/bootstrap.min.js"></script>
+<script src="lib/jquery.cookie.js"></script>
+<script src="js/common.js" charset="utf-8" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function () {
+        let urlParamInfo=urlParam();
+        console.log(urlParamInfo)
+        let token= $.cookie('token');
+        let agencyId= $.cookie('agencyId');
+        let serverIp_ = localStorage.getItem("serverIp");
+        let name=urlParamInfo.name;
+        let businessId=urlParamInfo.businessId;
+        if(businessId){
+            $("#busiName").val(name);
+        };
+        //新增按钮
+        $("#addBox").click(function () {
+            window.location.href="addBox.html?businessId="+businessId+"&name="+name;
+        });
+
+        //获得商家绑定的盒子
+        $.ajax({
+            headers: {
+                "token": token
+            },
+            type: "get",
+            url: serverIp_+"/agency/business/box/list",
+            data:{
+                "businessId":businessId
+            },
+            contentType: 'application/json;charset=UTF-8',
+            dataType: "json",
+            success: function(data){
+                console.log(data);
+                let screenID=data.data;
+                if(data.code==0){
+                    for(let i=0;i<screenID.length;i++){
+                        $("#addMachineName").after(`<br><div class="input-group bindingBtn">
+                    <input type="text" class="form-control" value=\"${screenID[i]}\">
+                    <button type="button" class="btn btn-primary">解绑</button>
+                </div>`)
+                    }
+                }else{
+                    console.log(data.message);
+                }
+
+            }
+        });
+//返回
+        $(".back").click(function () {
+            window.location.href="manage.html";
+        })
+
+    })
+
+
+
+</script>
+</body>
+</html>

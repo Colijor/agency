@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">-->
+    <title>营销统计</title>
+    <script src="js/flexible_css.debug.js"></script>
+    <script src="js/flexible.debug.js"></script>
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/remCommon.css">
+</head>
+<body>
+<div class="container-fluid line">
+    <div class="nv0 nv">
+        <span class="back"><img src="imgs/back.png" width="16">返回</span>
+    </div>
+</div>
+<section class="container">
+    <div class="search">
+        <div>
+            <div style="position: relative">
+                <div>
+                    <span style="margin-right: 0.125rem;">选择设备ID</span>
+                    <select id="screenCodes"><option>全部</option></select>
+                </div>
+
+            </div>
+            <div style="margin-top: 0.125rem;"><span style="margin-right: 0.075rem;">查询日期</span>
+                <div class="calBox"><input type="text" id="calendar3" data-options="{'type':'YYYY-MM-DD','beginYear':2010,'endYear':2088}" style="width:2.0rem;height:0.75rem;" value="" placeholder=" 开始时间"> <span class="caret" style="margin: 0rem"></span></div>
+                -
+                <div class="calBox"><input type="text" id="calendar4" data-options="{'type':'YYYY-MM-DD','beginYear':2010,'endYear':2088}" style="width:2.0rem;height:0.75rem;" value="" placeholder=" 结束时间"> <span class="caret" style="margin: 0rem"></span></div>
+            </div>
+            <div class="startSearch"><a href="javascript:void(0);">开始查询</a></div>
+        </div>
+    </div>
+    <div class="reportTx">
+        <div class="reportL">
+            <p>登录人数：<span id="loginNum">0人</span></p>
+            <p>中奖人数：<span id="winners">0人</span></p>
+            <p>发奖数量：<span id="prizeNum">0张</span></p>
+            <p>奖品核销数：<span id="prizeUsed">0张</span></p>
+            <p>支付人数：<span id="payNum">0人</span></p>
+        </div>
+        <div class="reportR">
+            <p>人均游戏时长：<span id="gameTime">0秒</span></p>
+            <p>兑奖人数：<span id="usedPrizeNum">0人</span></p>
+            <p>发奖金额：<span id="money">0元</span></p>
+            <p>核销金额：<span id="usedMoney">0元</span></p>
+            <p>营收金额：<span id="profits">0元</span></p>
+        </div>
+    </div>
+    <div class="couponD"><a href="couponDetail.html">兑券详情</a></div>
+</section>
+
+<script src="lib/jquery-3.3.1.min.js"></script>
+<script src="lib/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="lib/jquery.date.js"></script>
+<script type="text/javascript" src="lib/jquery.cookie.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
+    let token= $.cookie('token');
+    let agencyId= $.cookie('agencyId');
+    let role= $.cookie('role');
+    let serverIp_ = localStorage.getItem("serverIp");
+    //开始查询
+    $(".startSearch").click(function () {
+
+    });
+    //初始化数据
+    loadData();
+    function loadData(){
+        if(role==3){//经销商
+            $.ajax({
+                headers: {
+                    "token": token
+                },
+                type: "get",
+                url: serverIp_+"/agency/agencyManager/report",
+                data: {
+                    "agencyId":agencyId
+                },
+                contentType: 'application/json;charset=UTF-8',
+                dataType: "json",
+                success: function(data){
+                    console.log(data);
+                    let incomeVo=data.data.incomeVo;
+                    let bindScreenCodes=data.data.bindScreenCodes;
+                    if(incomeVo){
+                        let totalIncome=incomeVo.totalIncome/100;
+                        $("#todayIncome").text(totalIncome+"元")
+                        $("#loginNum").text(incomeVo.loginMembers+"人");
+                        $("#winners").text(incomeVo.winnerMembers+"人");
+                        $("#prizeNum").text(incomeVo.sendCouponCount+"张");
+                        $("#prizeUsed").text(incomeVo.consumeCouponCount+"张");
+                        $("#payNum").text(incomeVo.payCount+"人");
+
+                        $("#gameTime").text(incomeVo.avgGameTime+"秒");
+                        $("#usedPrizeNum").text(incomeVo.exchangeMembers+"人");
+                        $("#money").text(incomeVo.totalReturnMoney/100+"元");
+                        $("#usedMoney").text(incomeVo.consumeCouponWorth/100+"元");
+                        $("#profits").text(incomeVo.totalRevenue/100+"元");
+
+                        $("#sendStamps").text(incomeVo.sendCouponCount);
+                        $("#exchange").text(incomeVo.consumeCouponCount);
+
+                    }else {
+                        console.log("您还没绑定商家");
+                    };
+                    //绑定的屏幕码
+                    if(bindScreenCodes){
+                        for(let i=0;i<bindScreenCodes.length;i++){
+                            $("#screenCodes").append(`
+                        <option>${bindScreenCodes[i]}</option>
+                    `)
+                        };
+
+                    }
+
+                }
+            });
+
+            //屏幕码搜索
+            $("#screenCodes").change(function(){
+                let screenCode=$("#screenCodes  option:selected").text();
+                console.log(screenCode);
+                let screenData;
+                if(screenCode=="全部"){
+                    screenData={
+                        "agencyId":agencyId
+                    }
+                }else {
+                    screenData= {
+                        "agencyId":agencyId,
+                        "screenCode":screenCode
+                    };
+                };
+                console.log(screenData);
+                $.ajax({
+                    headers: {
+                        "token": token
+                    },
+                    type: "get",
+                    url: serverIp_+"/agency/agencyManager/report",
+                    data:screenData,
+                    contentType: 'application/json;charset=UTF-8',
+                    dataType: "json",
+                    success: function(data){
+                        console.log(data);
+                        let incomeVo=data.data.incomeVo;
+                        let bindScreenCodes=data.data.bindScreenCodes;
+                        if(incomeVo){
+                            $("#loginNum").text(incomeVo.loginMembers+"人");
+                            $("#winners").text(incomeVo.winnerMembers+"人");
+                            $("#prizeNum").text(incomeVo.sendCouponCount+"张");
+                            $("#prizeUsed").text(incomeVo.consumeCouponCount+"张");
+                            $("#payNum").text(incomeVo.payCount+"人");
+
+                            $("#gameTime").text(incomeVo.avgGameTime+"秒");
+                            $("#usedPrizeNum").text(incomeVo.exchangeMembers+"人");
+                            $("#money").text(incomeVo.totalReturnMoney/100+"元");
+                            $("#usedMoney").text(incomeVo.consumeCouponWorth/100+"元");
+                            $("#profits").text(incomeVo.totalRevenue/100+"元");
+
+                            $("#sendStamps").text(incomeVo.sendCouponCount);
+                            $("#exchange").text(incomeVo.consumeCouponCount);
+
+                        }else {
+                            console.log("您还没绑定商家");
+                        };
+
+                    }
+                });
+            });
+            //日历
+            $.date('#calendar3');
+            $.date('#calendar4');
+            function getNow(s) {
+                return s < 10 ? '0' + s: s;
+            };
+            var myDate = new Date();
+            var year=myDate.getFullYear();
+            var month=myDate.getMonth()+1;
+            var date=myDate.getDate();
+            var now=year+'-'+getNow(month)+"-"+getNow(date);
+            //昨天
+            myDate.setTime(myDate.getTime()-24*60*60*1000);
+            var yesterday = myDate.getFullYear()+"-" + (myDate.getMonth()+1) + "-" + myDate.getDate();
+            // $("#calendar4").val(now);
+            // $("#calendar3").val(yesterday);
+            //日期搜索
+            $("#d-confirm").click(function () {
+                let startTime=$("#calendar3").val();
+                let endTime=$("#calendar4").val();
+                console.log(endTime)
+                $.ajax({
+                    headers: {
+                        "token": token
+                    },
+                    type: "get",
+                    url: serverIp_+"/agency/agencyManager/report",
+                    data: {
+                        "agencyId":agencyId,
+                        "startTime":startTime,
+                        "endTime":endTime
+                    },
+                    contentType: 'application/json;charset=UTF-8',
+                    dataType: "json",
+                    success: function(data){
+                        console.log(data);
+                        let incomeVo=data.data.incomeVo;
+                        if(incomeVo){
+                            $("#loginNum").text(incomeVo.loginMembers+"人");
+                            $("#winners").text(incomeVo.winnerMembers+"人");
+                            $("#prizeNum").text(incomeVo.sendCouponCount+"张");
+                            $("#prizeUsed").text(incomeVo.consumeCouponCount+"张");
+                            $("#payNum").text(incomeVo.payCount+"人");
+
+                            $("#gameTime").text(incomeVo.avgGameTime+"秒");
+                            $("#usedPrizeNum").text(incomeVo.exchangeMembers+"人");
+                            $("#money").text(incomeVo.totalReturnMoney/100+"元");
+                            $("#usedMoney").text(incomeVo.consumeCouponWorth/100+"元");
+                            $("#profits").text(incomeVo.totalRevenue/100+"元");
+
+                            $("#sendStamps").text(incomeVo.sendCouponCount);
+                            $("#exchange").text(incomeVo.consumeCouponCount);
+
+                        }else {
+                            console.log("您还没绑定商家");
+                        };
+
+                    }
+                });
+            });
+        };
+        //内容商
+        if(role==2){
+            $.ajax({
+                headers: {
+                    "token": token
+                },
+                type: "get",
+                url: serverIp_+"/agency/business/get/report",
+                data: {
+                    "businessId":agencyId
+                },
+                contentType: 'application/json;charset=UTF-8',
+                dataType: "json",
+                success: function(data){
+                    console.log(data);
+                    let incomeVo=data.data.incomeVo;
+                    let bindScreenCodes=data.data.bindScreenCodes;
+                    if(incomeVo){
+                        let totalIncome=incomeVo.totalIncome/100;
+                        $("#todayIncome").text(totalIncome+"元")
+                        $("#loginNum").text(incomeVo.loginMembers+"人");
+                        $("#winners").text(incomeVo.winnerMembers+"人");
+                        $("#prizeNum").text(incomeVo.sendCouponCount+"张");
+                        $("#prizeUsed").text(incomeVo.consumeCouponCount+"张");
+                        $("#payNum").text(incomeVo.payCount+"人");
+
+                        $("#gameTime").text(incomeVo.avgGameTime+"秒");
+                        $("#usedPrizeNum").text(incomeVo.exchangeMembers+"人");
+                        $("#money").text(incomeVo.totalReturnMoney/100+"元");
+                        $("#usedMoney").text(incomeVo.consumeCouponWorth/100+"元");
+                        $("#profits").text(incomeVo.totalRevenue/100+"元");
+
+                        $("#sendStamps").text(incomeVo.sendCouponCount);
+                        $("#exchange").text(incomeVo.consumeCouponCount);
+
+                    }else {
+                        console.log("您还没绑定商家");
+                    };
+                    //绑定的屏幕码
+                    if(bindScreenCodes){
+                        for(let i=0;i<bindScreenCodes.length;i++){
+                            $("#screenCodes").append(`
+                        <option>${bindScreenCodes[i]}</option>
+                    `)
+                        };
+
+                    }
+
+                }
+            });
+
+            //屏幕码搜索
+            $("#screenCodes").change(function(){
+                let screenCode=$("#screenCodes  option:selected").text();
+                let screenData;
+                if(screenCode=="全部"){
+                    screenData={
+                        "businessId":agencyId
+                    }
+                }else {
+                    screenData= {
+                        "businessId":agencyId,
+                        "screenCode":screenCode
+                    };
+                };
+                console.log(screenData);
+                $.ajax({
+                    headers: {
+                        "token": token
+                    },
+                    type: "get",
+                    url: serverIp_+"/agency/business/get/report",
+                    data:screenData,
+                    contentType: 'application/json;charset=UTF-8',
+                    dataType: "json",
+                    success: function(data){
+                        console.log(data);
+                        let incomeVo=data.data.incomeVo;
+                        let bindScreenCodes=data.data.bindScreenCodes;
+                        if(incomeVo){
+                            $("#loginNum").text(incomeVo.loginMembers+"人");
+                            $("#winners").text(incomeVo.winnerMembers+"人");
+                            $("#prizeNum").text(incomeVo.sendCouponCount+"张");
+                            $("#prizeUsed").text(incomeVo.consumeCouponCount+"张");
+                            $("#payNum").text(incomeVo.payCount+"人");
+
+                            $("#gameTime").text(incomeVo.avgGameTime+"秒");
+                            $("#usedPrizeNum").text(incomeVo.exchangeMembers+"人");
+                            $("#money").text(incomeVo.totalReturnMoney/100+"元");
+                            $("#usedMoney").text(incomeVo.consumeCouponWorth/100+"元");
+                            $("#profits").text(incomeVo.totalRevenue/100+"元");
+
+                            $("#sendStamps").text(incomeVo.sendCouponCount);
+                            $("#exchange").text(incomeVo.consumeCouponCount);
+
+                        }else {
+                            console.log("您还没绑定商家");
+                        };
+
+                    }
+                });
+            });
+            //日历
+            $.date('#calendar3');
+            $.date('#calendar4');
+            function getNow(s) {
+                return s < 10 ? '0' + s: s;
+            };
+            var myDate = new Date();
+            var year=myDate.getFullYear();
+            var month=myDate.getMonth()+1;
+            var date=myDate.getDate();
+            var now=year+'-'+getNow(month)+"-"+getNow(date);
+            //昨天
+            myDate.setTime(myDate.getTime()-24*60*60*1000);
+            var yesterday = myDate.getFullYear()+"-" + (myDate.getMonth()+1) + "-" + myDate.getDate();
+            // $("#calendar4").val(now);
+            // $("#calendar3").val(yesterday);
+            //日期搜索
+            $("#d-confirm").click(function () {
+                let startTime=$("#calendar3").val();
+                let endTime=$("#calendar4").val();
+                console.log(endTime)
+                $.ajax({
+                    headers: {
+                        "token": token
+                    },
+                    type: "get",
+                    url: serverIp_+"/agency/business/get/report",
+                    data: {
+                        "businessId":agencyId,
+                        "startTime":startTime,
+                        "endTime":endTime
+                    },
+                    contentType: 'application/json;charset=UTF-8',
+                    dataType: "json",
+                    success: function(data){
+                        console.log(data);
+                        let incomeVo=data.data.incomeVo;
+                        if(incomeVo){
+                            $("#loginNum").text(incomeVo.loginMembers+"人");
+                            $("#winners").text(incomeVo.winnerMembers+"人");
+                            $("#prizeNum").text(incomeVo.sendCouponCount+"张");
+                            $("#prizeUsed").text(incomeVo.consumeCouponCount+"张");
+                            $("#payNum").text(incomeVo.payCount+"人");
+
+                            $("#gameTime").text(incomeVo.avgGameTime+"秒");
+                            $("#usedPrizeNum").text(incomeVo.exchangeMembers+"人");
+                            $("#money").text(incomeVo.totalReturnMoney/100+"元");
+                            $("#usedMoney").text(incomeVo.consumeCouponWorth/100+"元");
+                            $("#profits").text(incomeVo.totalRevenue/100+"元");
+
+                            $("#sendStamps").text(incomeVo.sendCouponCount);
+                            $("#exchange").text(incomeVo.consumeCouponCount);
+
+                        }else {
+                            console.log("您还没绑定商家");
+                        };
+
+                    }
+                });
+            });
+        };
+    }
+
+
+    //返回首页
+    $(".back").click(function () {
+            window.location.href="indexAddM.html?memberId="+agencyId+"&token="+token+"&role="+role;
+    });
+</script>
+</body>
+</html>

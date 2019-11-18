@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Title</title>
+    <style type="text/css">
+        body{background: rgba(0,0,0,0.2);width: 100%;height: 100%}
+        .popUp{
+            width: 300px;
+            height: 200px;
+            background: white;
+            position: absolute;
+            top:50%;
+            left:50%;
+            transform: translate(-50%,-50%);
+            color: black;
+            z-index: 99;
+            text-align: center;
+        }
+        #returnManage{text-decoration: none;width: 100px;line-height: 30px;height: 30px;color: white;border-radius: 5px;display: inline-block;margin-top: 40px;background: #169bd5}
+
+    </style>
+
+</head>
+<body>
+<div class="popUp">
+    <h3>提示</h3>
+    <p>增加客户成功</p>
+    <a href="javascript:history.go(-1);" id="returnManage">返回管理</a>
+</div>
+</body>
+</html>

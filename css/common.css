@@ -1,0 +1,112 @@
+*{padding: 0;margin: 0;}
+
+.popUp{width: 300px;height: 200px;background: white;position: absolute;top:50%;left:50%;transform: translate(-50%,-50%);color: black;z-index: 99;text-align: center;}
+.popUpBox{position: absolute;width: 100%;height: 100%;background: rgba(0,0,0,0.4);top: 0;}
+
+#hd{width: 100%;height: 240px;position: relative;border-bottom:2px solid #ddd}
+.report{position: absolute;top:50%;left: 50%;transform: translate(-50%,-50%);background: url('../imgs/cir.png') no-repeat;background-size: cover;padding: 50px;}
+#detail{position: absolute;bottom: 0;right: 10px;color: #74ebfe;text-decoration: none;}
+
+footer{display: flex;justify-content: space-around;width: 100%;padding: 30px 0;color: white;}
+.module{width: 40%;height: 80px;text-align: center;}
+.title:after{content: "";display: block;width: 80%;height: 1px;background: white;margin: 0 auto;}
+.module:first-child{background: #4ac5cd}
+.module:last-child{background: #f5c562}
+.num{font-size: 24px;}
+
+
+
+.nv{display: inline-block;width: 100%;height: 45px;border-bottom: 1px solid #ddd;padding: 0 10px;line-height: 45px;position: relative}
+.nv3{display: inline-block;height: 45px;border-bottom: 1px solid #ddd;padding: 0 8px;line-height: 45px;position: relative;}
+.line{padding: 10px 0 0 0;}
+.back{color: black;text-decorareporttion: none;}
+.choose{display: inline-block;}
+.choose a{color: black;text-decoration: none}
+#findBtn{width: 60px;height: 30px;line-height: 30px;background: #118eea;color: white;border: none;border-radius: 4px;}
+.income{margin-left: 20px;color: #08ff6b;}
+.money{display: inline-block;font-weight: bold;color: black!important;}
+.spending{color: #ff0504}
+.order{display: flex;padding: 3px 10px;position: relative}
+.order:after{content: "";display: block;width: 95%;height: 1px;background: #ddd;position: absolute;bottom: 0;text-align: center}
+.orderL{flex: 1}
+.orderM{flex: 4}
+.orderR{flex: 1;position: relative;font-weight: bold;}
+.contentL{flex: 1}
+.contentM{flex: 3}
+.contentR{flex: 3;position: relative;font-weight: bold;}
+.orderNum{position: absolute;top:50%;transform: translateY(-50%)}
+.machine{width: 45px;height: 45px;display: inline-block;border-radius: 100%;line-height: 45px;}
+.nv1{display: flex;justify-content: space-between;}
+
+/*弹窗*/
+.clearFloat:after{content: "";display: block;clear: both;overflow: hidden;}
+.popup{margin-top:45px;background:white;z-index: 1;width: 100%;position: absolute;left: 0;}
+#choosePopup,#allPopup{display: none}
+.popupChoose p{width: 29%;text-align: center;background: #f5f5f5;float: left;margin: 5px;}
+.popupChoose{padding: 13px;display: flex;justify-content: center;flex-wrap: wrap;}
+.popupBtns{display: flex;}
+.popupBtns input{display: inline-block;flex: 1;justify-content: space-between;border: none;height: 40px;outline: none;}
+.popupBtns input:last-child{background: #118eea;color: white;}
+.popupBtns input:first-child{background:#e9f3fc;color: #118eea}
+
+.optionClick{background: #e1f1fe!important;color: #118eea!important;}
+.option{background: #f5f5f5;color: black}
+#calendar,#calendar3,#calendar4,#calendarD2,#calendarD1{border:none;outline: none;height: 26px;}
+
+
+.instructions{text-align: center;margin: 30px 0 70px 0;}
+.inp{width: 80%;margin: 0 auto;}
+.litterLink{display: flex;justify-content: space-between;padding-top: 10px;}
+.litterLink a{text-decoration: none;color: #55d5f4;}
+#submitBtn{color: white;background: #c8cccf;width: 130px;height: 30px;border-radius: 5px;outline: none;border:none;margin-top: 50px;}
+.main{text-align: center}
+
+#manage{display: inline-block;position: absolute;top: 10px;right: 10px;width: 40px;height: 40px;border-radius: 25px;line-height: 40px;text-align: center;}
+.addClient{width: 80px;height: 30px;font-size: 16px;background: #4bc4cd;color: white;display: inline-block;text-align: center;line-height: 30px;border-radius: 5px;margin-top: 5px;}
+
+
+.addMT{text-align: center;font-weight: bold}
+.addMContent{width: 80%;margin: 0 auto;text-align: center;}
+.bindingBtn{display: flex;justify-content: space-between;}
+.bindingBtn input{width: 68%!important;}
+.bindingBtn button{width: 28%;}
+
+#address{display: flex}
+#address select{width: 34%;}
+#industry{width: 100%;padding: 5px 0;}
+#todayIncome{text-align: center;}
+/*置顶*/
+.topFixed{position: fixed;top:0;border-bottom: 2px solid #cf9455;z-index: 3;}
+
+.couponD a{display: inline-block;width: 100px;height: 40px;color: white;background: #337ab7;text-align: center;line-height: 40px;border-radius: 3px;font-size: 16px;}
+.startSearch span{display: inline-block;width: 70px;height: 30px;color: white;background: #337ab7;text-align: center;line-height: 30px;border-radius: 3px;font-size: 12px;}
+.couponD{text-align: center;margin-top: 100px;}
+.startSearch{position: absolute;top: 10px;right: 0;}
+.search{padding-top: 10px;position: relative;padding-bottom: 5px;}
+.reportTx{display: flex;justify-content: space-around;margin-top: 50px;}
+.search:after{content: "";display: block;width: 109%;height: 1px;background: #ccc;position: absolute;bottom: 0;left:-5%}
+.calBox{display: inline-block;border:1px solid #333;padding-right: 5px;line-height: 18px}
+.calBox2{display: inline-block;border:1px solid #333;padding-right: 5px;height: 35px;line-height: 35px;margin-top:5px;}
+
+/*首页样式*/
+.benefitWrap{width: 100%;height: 150px;background: #208aff;position: relative;}
+.benefitBox{position: absolute;top:50%;left:50%;transform: translate(-50%,-50%);text-align: center;}
+#incomeDetails{background: #248cff;}
+#businessManage{background: #10c1a7;}
+#marketing{background: #ffa526;}
+.benefitBox p{color: white;}
+.benefitMoney{font-size: 20px;font-weight: bold;}
+.linkList{width: 100%;}
+.links{padding: 15px;display: flex;justify-content: space-around;}
+.links a{text-decoration: none;}
+.dealer{border-bottom: 1px solid #ddd;}
+.linkCom{text-align: center;color: white;height: 70px;border-radius: 7px;line-height: 70px;width: 80px;display: inline-block;}
+.dealer{width: 100%;display: flex;justify-content: space-around;padding: 20px 0;}
+.linkEnt{text-align: center;}
+.link_img{width: 36px;height: 36px;}
+.link_span{margin-top: 10px;}
+.link_span a{text-decoration:none;}
+#screenCodes{height: 30px;}
+
+.popUpBox{display:none}
+p{margin: 0;}

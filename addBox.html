@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+</head>
+<body>
+<div class="container-fluid line">
+    <div class="nv0 nv">
+        <span class="back" ><img src="imgs/back.png" width="16">返回</span>
+    </div>
+    <section class="container">
+        <h3 class="addMT">绑定设备、添加设备</h3>
+        <div class="addMContent" style="background: #d7d7d7;height: 240px">
+            <div class="input-group bindingBtn">
+                <input type="text" class="form-control" value="" placeholder="输入屏幕码ID" style="margin: 15px auto 20px auto" id="screenId">
+            </div>
+            <button class="btn btn-default" style="width: 60%;font-weight: bold;background:#169bd5;color: white;margin-top: 40px;outline: none" id="bindBox">确认</button>
+        </div>
+    </section>
+</div>
+
+<script src="lib/jquery-3.3.1.min.js"></script>
+<script src="lib/bootstrap/bootstrap.min.js"></script>
+<script src="lib/jquery.cookie.js"></script>
+<script src="js/common.js" charset="utf-8" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function () {
+        let urlParamInfo=urlParam();
+        let token= $.cookie('token');
+        let serverIp_ = localStorage.getItem("serverIp");
+        let name=urlParamInfo.name;
+        let businessId=urlParamInfo.businessId;
+        console.log(businessId);
+        $("#bindBox").click(function(){
+            let screenId=$("#screenId").val();
+            if(screenId){
+                $.ajax({
+                    headers: {
+                        "token": token
+                    },
+                    type: "post",
+                    url: serverIp_+"/agency/agencyManager/bind/box",
+                    data:JSON.stringify({
+                        "businessId":businessId,
+                        "screenCode":screenId
+                    }),
+                    contentType: 'application/json;charset=UTF-8',
+                    dataType: "json",
+                    success: function(data){
+                        console.log(data);
+                        if(data.code==-1){
+                            alert(data.message)
+                        };
+                        if(data.code==0){
+                            window.location.href="addMachine.html?businessId="+businessId+"&name="+name;
+                        };
+
+                    }
+                });
+            }else {
+                alert("请输入屏幕码ID");
+            }
+
+        });
+        //返回
+        $(".back").click(function () {
+            window.location.href="addMachine.html?businessId="+businessId+"&name="+name;
+        })
+
+    })
+
+
+
+</script>
+</body>
+</html>

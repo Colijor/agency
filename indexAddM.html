@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>设备管理系统</title>
+    <script src="js/flexible_css.debug.js"></script>
+    <script src="js/flexible.debug.js"></script>
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/remCommon.css">
+</head>
+<body style="background:#f0eff5">
+<div class="indexBox" style="background: white;">
+    <header class="benefitWrap">
+        <div class="benefitBox">
+            <p>今日总收益</p>
+            <p class="benefitMoney">0元</p>
+        </div>
+    </header>
+    <div class="linkList">
+        <div class="links">
+            <a href="detail.html" id="incomeDetails" class="linkCom">收入详情</a>
+            <a href="manage.html" id="businessManage" class="linkCom">商户管理</a>
+            <a href="marketing.html" id="marketing" class="linkCom">营销统计</a>
+            <a href="game.html" id="game" class="linkCom" style="background: #ff0504;">游戏统计</a>
+        </div>
+        <div class="dealer">
+            <!--<div class="linkEnt">-->
+                <!--<div><a href=""><img src="imgs/prize.png" class="link_img"/></a></div>-->
+                <!--<div class="link_span"><a href=""><span>游戏后台</span></a></div>-->
+            <!--</div>-->
+            <div class="linkEnt">
+                <div><a href="prizeConfig.html" id="prizeConfig"><img src="imgs/prize.png" class="link_img"/></a></div>
+                <div class="link_span"><a href=""><span>奖品配置</span></a></div>
+            </div>
+            <!--<div class="linkEnt">-->
+                <!--<div><a href="" id="WinRecord"><img src="imgs/prize.png" class="link_img"/></a></div>-->
+                <!--<div class="link_span"><a href=""><span>中奖记录</span></a></div>-->
+            <!--</div>-->
+            <!--<div class="linkEnt">-->
+                <!--<div><a href="" id="Functional1"><img src="imgs/prize.png" class="link_img"/></a></div>-->
+                <!--<div class="link_span"><a href=""><span>功能描述</span></a></div>-->
+            <!--</div>-->
+            <!--<div class="linkEnt">-->
+                <!--<div><a href="" id="Functional2"><img src="imgs/prize.png" class="link_img"/></a></div>-->
+                <!--<div class="link_span"><a href=""><span>功能描述</span></a></div>-->
+            <!--</div>-->
+            <!--<div class="linkEnt">-->
+                <!--<div><a href="" id="Functional3"><img src="imgs/prize.png" class="link_img"/></a></div>-->
+                <!--<div class="link_span"><a href=""><span>功能描述</span></a></div>-->
+            <!--</div>-->
+        </div>
+    </div>
+</div>
+<div class="popUpBox">
+    <div class="popUp">
+        <h3>提示</h3>
+        <p style="margin-top: 0.775rem;font-size: 0.4rem;">您还没有权限，请通知管理员授权</p>
+    </div>
+</div>
+<script src="lib/jquery-3.3.1.min.js"></script>
+<script src="lib/bootstrap/bootstrap.min.js"></script>
+<script src="lib/jquery.cookie.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
+    $(function () {
+        let serverIp_ = localStorage.getItem("serverIp");
+        let urlParamInfo=urlParam();
+        console.log("url参数：");
+        console.log(urlParamInfo);
+        let memberId=urlParamInfo.memberId;
+        let token=urlParamInfo.token;
+        let role=urlParamInfo.role;
+        console.log("role:"+role);
+        if(role=="undefined"){//内容商没有权限页面
+            $(".popUpBox").show();
+        }
+        if(role==4) {
+            $(".popUpBox").hide();
+            $("#incomeDetails").hide();
+            $("#businessManage").hide();
+            $("#marketing").hide();
+            $(".dealer").hide();
+            $.ajax({
+                headers: {
+                    "token": token
+                },
+                type: "get",
+                url: serverIp_+"/agency/contentProvider/report",
+                data: {
+                    "id":memberId,
+                    "switchCode": 1
+                },
+                contentType: 'application/json;charset=UTF-8',
+                dataType: "json",
+                success: function(data){
+                    console.log(data);
+                    let totalIncome=data.data.totalIncome;
+                    $(".benefitMoney").text(totalIncome/100+"元");
+                    $.ajax({
+                        headers: {
+                            "token": token
+                        },
+                        type: "get",
+                        contentType: 'application/json;charset=UTF-8',
+                        dataType: "json",
+                        url: serverIp_ + "/agency/contentProvider/report",
+                        data: {
+                            "id": memberId,
+                            "switchCode": 2,
+                        },
+                        success: function (data) {
+                            console.log(data.data);
+                            let gameCodeList = data.data.gameCodeList || [];
+                            localStorage.setItem('gameCodeList',JSON.stringify(gameCodeList));
+                        }
+                    });
+                }
+            });
+        };
+        //把数据存储到cookie里面
+        $.cookie('agencyId',memberId,{
+            path:'/',
+        });
+        $.cookie('token',token);
+        $.cookie('role',role);
+        //时间 今天
+        function getNow(s) {
+            return s < 10 ? '0' + s: s;
+        };
+        let myDate = new Date();
+        let year=myDate.getFullYear();
+        let month=myDate.getMonth()+1;
+        let date=myDate.getDate();
+        let startTime=year+'-'+getNow(month)+"-"+getNow(date);
+        //明天
+        myDate.setTime(myDate.getTime()+24*60*60*1000);
+        let endTime = myDate.getFullYear()+"-" + (myDate.getMonth()+1) + "-" + myDate.getDate();
+        if(role==2){//商户
+            $("#businessManage").hide();
+            $("#game").hide();
+            $.ajax({
+                headers: {
+                    "token": token
+                },
+                type: "get",
+                url: serverIp_+"/agency/business/get/report",
+                data: {
+                    "businessId":memberId,
+                    "startTime":startTime,
+                    "endTime":endTime
+                },
+                contentType: 'application/json;charset=UTF-8',
+                dataType: "json",
+                success: function(data){
+                    console.log(data);
+                    let incomeVo=data.data.incomeVo;
+                    $(".benefitMoney").text(incomeVo.totalRevenue/100+"元");
+                    let gameCodeList = data.data.gameList || [];
+                    console.log("游戏列表：");
+                    console.log(gameCodeList)
+                    localStorage.setItem('gameCodeList',JSON.stringify(gameCodeList));
+                }
+            });
+        };
+        if(role==3){//经销商
+            $("#game").hide();
+            $(".dealer").hide();
+            $.ajax({
+                headers: {
+                    "token": token
+                },
+                type: "get",
+                url: serverIp_+"/agency/agencyManager/report",
+                data: {
+                    "agencyId":memberId,
+                    "startTime":startTime,
+                    "endTime":endTime
+                },
+                contentType: 'application/json;charset=UTF-8',
+                dataType: "json",
+                success: function(data){
+                    console.log(data);
+                    let incomeVo=data.data.incomeVo;
+                    $(".benefitMoney").text(incomeVo.totalRevenue/100+"元");
+                    let gameCodeList = data.data.gameList || [];
+                    localStorage.setItem('gameCodeList',JSON.stringify(gameCodeList));
+                }
+            });
+        };
+    })
+
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>注册</title>
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="lib/ft_slider/css/ft-slider.css">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+    <style type="text/css">
+        button {
+            display: inline-block;
+            padding: 6px 12px;
+            line-height: 1.4;
+            text-align: center;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            color: #fff;
+            background-color: #5bc0de;
+            border-color: #46b8da;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .containerH {
+            margin: 20px;
+            height: 140px;
+        }
+        .ft-slider{
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h3 class="instructions">新用户注册</h3>
+    <div class="main">
+        <form class="" role="form">
+            <div class="input-group inp">
+                <input type="number" id="user" class="form-control" placeholder="输入手机号码" value="" oninput="if(value.length>11)value=value.slice(0,11)">
+            </div>
+            <br>
+            <div class="input-group inp">
+                <input type="password" id="pwd" class="form-control" placeholder="输入密码" value="">
+            </div>
+            <br>
+            <div class="input-group inp">
+                <input type="password" id="pwd1" class="form-control" placeholder="再次输入密码" value="">
+            </div>
+        </form>
+        <div class="litterLink">
+            <!--<a href="#">忘记密码</a>-->
+            <a href="login.html">我已有账号</a>
+        </div>
+        <!--滑块-->
+        <div class="containerH">
+            <div id="slider"></div>
+            <!--<div class="btn-wrap"><button id="btn1">还原</button></div>-->
+            <!--<div class="result-wrap">验证结果：<span id="result1"></span></div>-->
+        </div>
+        <input type="button" value="注册" id="submitBtn">
+    </div>
+</div>
+
+
+
+<script src="lib/jquery-3.3.1.min.js"></script>
+<script src="lib/bootstrap/bootstrap.min.js"></script>
+<script src="lib/ft_slider/js/ft-slider.min.js"></script>
+<script>
+    var slider = new FtSlider({
+        id: "slider",
+        callback: function(res) {
+            if(res==true){//验证成功
+                $("#user").blur();
+                $("#pwd").blur();
+                $("#pwd1").blur();
+                $("#submitBtn").css("background-color","#169bd5");
+                $("#submitBtn").click(function () {
+                    // 验证手机号
+                    var pattern = /^1[34578]\d{9}$/;
+                    var user=$("#user").val();
+                    var pwd=$("#pwd").val();
+                    var pwd1=$("#pwd1").val();
+                    let serverIp_ = localStorage.getItem("serverIp");
+                    if(user && pwd && pwd1){
+                        if(pattern.test(user)){   //是否是标准的手机号模式
+                            if(pwd===pwd1){      //验证两次输入的密码是否一致
+                                let userInfo={
+                                    "phone":user,
+                                    "password":pwd,
+                                    "secondPassword":pwd1
+                                };
+                                $.ajax({
+                                    type: "post",
+                                    url: serverIp_+"/agency/register",
+                                    data: JSON.stringify(userInfo),
+                                    contentType: "application/json",
+                                    dataType: "json",
+                                    success: function(data){
+                                        console.log(data);
+                                        if(data.code==0){
+                                            window.location.href="registerToLogin.html";
+                                        };
+                                        if(data.code==-1){
+                                            alert(data.message);
+                                            slider.restore();
+                                        }
+
+                                    }
+                                });
+                            }else {
+                                alert("两次密码输入不一致");
+                                slider.restore();
+                            };
+                        }else {
+                            alert("请输入合法的手机号")
+                            slider.restore();
+                        };
+                    }else {
+                        alert("输入不能空白")
+                        slider.restore();
+                    };
+                });
+            }
+        }
+    });
+
+</script>
+</body>
+</html>
